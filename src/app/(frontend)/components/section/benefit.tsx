@@ -43,9 +43,9 @@ export default function BenefitSection() {
         //   transition={{ duration: 0.6 }}
         //   viewport={{ once: true }}
         data-aos="fade-right"
-          className="rounded-3xl border border-red-500/30 bg-gradient-to-br from-neutral-900 to-neutral-950 p-8 shadow-lg"
+          className="rounded-3xl border border-yellow-500/30 bg-gradient-to-br from-neutral-900 to-neutral-950 p-8 shadow-lg"
         >
-          <h2 className="text-xl md:text-2xl font-extrabold text-red-500 mb-6">
+          <h2 className="text-xl md:text-2xl font-extrabold text-yellow-500 mb-6">
             APA KERUGIAN TANPA JASA ARSITEK ?
           </h2>
           <ul className="space-y-3 text-sm md:text-base text-neutral-300">
@@ -65,9 +65,9 @@ export default function BenefitSection() {
         //   transition={{ duration: 0.6 }}
         //   viewport={{ once: true }}
         data-aos="fade-left"
-          className="rounded-3xl border border-green-500/40 bg-gradient-to-br from-neutral-900 to-neutral-950 p-8 shadow-lg"
+          className="rounded-3xl border border-yellow-500/40 bg-gradient-to-br from-neutral-900 to-neutral-950 p-8 shadow-lg"
         >
-          <h2 className="text-xl md:text-2xl font-extrabold text-green-400 mb-6">
+          <h2 className="text-xl md:text-2xl font-extrabold text-yellow-400 mb-6">
             MENGAPA BLESS ARCHITECT ?
           </h2>
           <ul className="space-y-3 text-sm md:text-base text-neutral-300">

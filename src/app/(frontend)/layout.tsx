@@ -4,6 +4,7 @@ import GradualBlur from "./components/layout/gradual";
 import Navbar from "./components/layout/Navbar";
 import AOSInitializer from "./components/layout/AOSinitializer";
 import { Outfit } from "next/font/google"; // ✅ import font
+import WhatsAppChatbot from "./components/slices/chat";
 
 // Setup Outfit
 const outfit = Outfit({
@@ -60,6 +61,7 @@ export default function RootLayout({
             <Navbar />
             <div className="mb-10"></div>
             {children}
+            <WhatsAppChatbot />
           </div>
 
           {/* Gradual Blur fixed di bottom */}

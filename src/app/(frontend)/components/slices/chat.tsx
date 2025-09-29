@@ -98,7 +98,7 @@ export default function WhatsAppChatbot() {
                 href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 bg-black border border-yellow-500 text-white px-4 py-2 rounded-xl hover:bg-yellow-600 hover:text-black transition"
+                className="w-full flex items-center justify-center gap-2 bg-black border border-gray-500 text-white px-4 py-2 rounded-xl hover:bg-white hover:text-black transition"
               >
                 <Send size={18} />
                 Klaim Promo

@@ -34,6 +34,7 @@ interface Contact {
 
 export default function ContactPage() {
   const [socials, setSocials] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Fetch data dari API
   useEffect(() => {
@@ -44,6 +45,8 @@ export default function ContactPage() {
         setSocials(data);
       } catch (error) {
         console.error("Gagal fetch kontak:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchContacts();
@@ -72,27 +75,33 @@ export default function ContactPage() {
         </p>
 
         {/* Grid Sosial Media */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-10">
-          {socials.map((item, i) => (
-            <motion.div
-              key={item.id}
-              variants={fadeIn}
-              whileHover={{ scale: 1.05 }}
-              className="bg-zinc-900 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 shadow-md transition"
-            >
-              {iconMap[item.icon] ?? (
-                <FaEnvelope className="text-yellow-400 text-2xl" />
-              )}
-              <Link
-                href={item.url}
-                target="_blank"
-                className="font-semibold text-white hover:text-yellow-400 transition"
-              >
-                {item.platform}
-              </Link>
-            </motion.div>
-          ))}
+        {loading ? (
+          <div className="min-h-screen flex items-center justify-center text-yellow-500">
+          <div className="loader"></div>
         </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-10">
+            {socials.map((item) => (
+              <motion.div
+                key={item.id}
+                variants={fadeIn}
+                whileHover={{ scale: 1.05 }}
+                className="bg-zinc-900 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 shadow-md transition"
+              >
+                {iconMap[item.icon] ?? (
+                  <FaEnvelope className="text-yellow-400 text-2xl" />
+                )}
+                <Link
+                  href={item.url}
+                  target="_blank"
+                  className="font-semibold text-white hover:text-yellow-400 transition"
+                >
+                  {item.platform}
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </motion.div>
 
       {/* Order Form */}
