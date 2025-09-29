@@ -50,9 +50,9 @@ export default function PortfolioPage() {
       </div>
 
       {loading ? (
-              <div className="min-h-screen flex items-center justify-center text-yellow-500">
-        <div className="loader"></div>
-      </div>
+        <div className="min-h-screen flex items-center justify-center text-yellow-500">
+          <div className="loader"></div>
+        </div>
       ) : (
         <motion.div
           initial="hidden"
