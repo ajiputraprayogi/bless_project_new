@@ -23,10 +23,10 @@ function Card({ children }: { children: React.ReactNode }) {
 function FeatureRow({ label, image, badge }: Feature) {
   return (
     <div className="flex md:flex-col items-center gap-3">
-      <span className="inline-flex size-9 items-center justify-center rounded-xl border border-yellow-500/40 bg-neutral-900 text-yellow-400 shadow-sm group-hover:shadow-md overflow-hidden">
+      <span className="inline-flex size-9 items-center justify-center rounded-xl bg-white text-yellow-400 shadow-sm group-hover:shadow-md overflow-hidden">
         <img src={image} alt={label} className="size-5 object-contain" />
       </span>
-      <span className="text-sm md:text-base font-medium text-neutral-200">
+      <span className="text-sm md:text-base font-medium text-yellow-500">
         {label}
       </span>
       {badge ? (

@@ -5,6 +5,7 @@ import Navbar from "./components/layout/Navbar";
 import AOSInitializer from "./components/layout/AOSinitializer";
 import { Outfit } from "next/font/google"; // ✅ import font
 import WhatsAppChatbot from "./components/slices/chat";
+import Footer from "./components/layout/Footer";
 
 // Setup Outfit
 const outfit = Outfit({
@@ -53,6 +54,7 @@ export default function RootLayout({
     <html lang="en">
       {/* ✅ apply Outfit ke body */}
       <body className={outfit.className}>
+
         {/* Jalankan AOS */}
         <AOSInitializer />
 
@@ -61,6 +63,7 @@ export default function RootLayout({
             <Navbar />
             <div className="mb-10"></div>
             {children}
+            <Footer/>
             <WhatsAppChatbot />
           </div>
 
