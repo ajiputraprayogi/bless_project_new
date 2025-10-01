@@ -1,28 +1,28 @@
-// app/api/langkah/route.ts
 import { NextResponse } from "next/server";
 
 export async function GET() {
   const data = [
     {
       title: "TAHAP KONSULTASI",
-      icon: "HiOutlineDocumentText", // icon scroll/konsultasi
+      icon: "HiOutlineDocumentText",
       content: [
-        "Klien memberikan data-data yang diperlukan berupa:",
         {
-          list: [
-            "Lokasi Lahan",
-            "Ukuran Lahan",
-            "Style Rumah yang disukai",
-            "Rencana Budget Pembangunan",
-            "Rincian Kebutuhan Ruang (contoh dibagi per lantai, kamar, fasilitas)"
+          subSection: "Informasi Awal",
+          text: [
+            "Klien memberikan data-data yang diperlukan berupa lokasi lahan, ukuran, style rumah yang disukai, rencana budget, dan rincian kebutuhan ruang."
           ]
         },
-        "{{highlight: Tim Arsitek akan memberikan sketch denah dan penawaran biaya desain berdasarkan perkiraan luasan bangunan yang diperlukan.}}"
+        {
+          subSection: "Penawaran Desain",
+          text: [
+            "Tim Arsitek akan memberikan sketch denah dan penawaran biaya desain berdasarkan perkiraan luasan bangunan yang diperlukan."
+          ]
+        }
       ]
     },
     {
       title: "TAHAP PEMBAYARAN",
-      icon: "FaCreditCard", // icon payment
+      icon: "FaCreditCard",
       content: [
         {
           subSection: "1. PEMBAYARAN TAHAP PERTAMA",
@@ -49,7 +49,7 @@ export async function GET() {
     },
     {
       title: "KELENGKAPAN GAMBAR DESAIN RUMAH",
-      icon: "FiFileText", // icon file/document
+      icon: "FiFileText",
       content: [
         {
           subSection: "1. TAHAP PERTAMA",
