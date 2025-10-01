@@ -14,10 +14,10 @@ export async function GET() {
             id: true,
             text: true,
           },
-          orderBy: { id: "asc" },
+          orderBy: { id: "asc" }, // urut berdasarkan id
         },
       },
-      orderBy: { id: "asc" }, // urut berdasarkan id, bisa juga pakai createdAt
+      orderBy: { id: "asc" }, // urut berdasarkan id profile
     });
 
     return NextResponse.json(profiles);
@@ -48,9 +48,8 @@ export async function POST(request: NextRequest) {
         sejarah,
         visi,
         misi: {
-          create: misi.map((text: string, index: number) => ({
-            text,
-            sortOrder: index, // simpan urutan misi juga
+          create: misi.map((text: string) => ({
+            text, // hanya text karena sortOrder tidak ada di schema
           })),
         },
       },
