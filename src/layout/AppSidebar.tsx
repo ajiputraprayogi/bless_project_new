@@ -79,6 +79,11 @@ const navItems: NavItem[] = [
     name: "Step Payment",
     path: "/backend/steppayment",
   },
+  {
+    icon:  <UserCircleIcon />,
+    name: "Keunggulan",
+    path: "/backend/keunggulan",
+  },
   // {
   //   name: "Forms",
   //   icon: <ListIcon />,
