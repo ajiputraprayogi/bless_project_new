@@ -86,11 +86,11 @@ export default function Footer() {
         {/* Placeholder Maps / Info tambahan */}
         <div className="text-right">
           <h3 className="font-semibold text-yellow-400 mb-4">Our Location</h3>
-          <div className="rounded-lg overflow-hidden border border-yellow-600 shadow-sm inline-block w-full max-w-sm">
+          <div className="rounded-lg overflow-hidden border border-yellow-600 shadow-sm inline-block w-1/2 max-w-sm">
             <iframe
   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3952.956353093918!2d112.006837373642!3d-7.7944461922255845!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e78579e7d171915%3A0xc259f859b31dac69!2sBless%20Kontraktor!5e0!3m2!1sid!2sid!4v1759318592114!5m2!1sid!2sid"
   width="100%"
-  height={180}
+  height={80}
   style={{ border: 0 }}
   allowFullScreen
   loading="lazy"
@@ -104,7 +104,7 @@ export default function Footer() {
       {/* Bawah */}
       <div className="border-t border-yellow-700 py-4 text-sm text-yellow-500 flex flex-col md:flex-row justify-between items-center px-6 max-w-7xl mx-auto">
         <p>© {new Date().getFullYear()} Bless Project. All rights reserved.</p>
-        <div className="flex gap-4 mt-2 md:mt-0">
+        {/* <div className="flex gap-4 mt-2 md:mt-0">
           <Link href="/privacy" className="hover:text-yellow-400">
             Privacy Policy
           </Link>
@@ -114,7 +114,7 @@ export default function Footer() {
           <Link href="/cookies" className="hover:text-yellow-400">
             Cookies Settings
           </Link>
-        </div>
+        </div> */}
       </div>
     </footer>
   );

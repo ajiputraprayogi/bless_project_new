@@ -1,156 +1,205 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { HiMenu, HiX, HiChevronDown } from "react-icons/hi";
 import Image from "next/image";
-import { Squash as Hamburger } from "hamburger-react";
-import AOS from "aos";
-import "aos/dist/aos.css";
+import Link from "next/link";
 
-export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const [openProfileMobile, setOpenProfileMobile] = useState(false); // khusus mobile
-
-  useEffect(() => {
-    AOS.init({ duration: 600, once: true });
-  }, []);
-
-  useEffect(() => {
-    if (isOpen) {
-      setShowMenu(true);
-    } else {
-      const timer = setTimeout(() => setShowMenu(false), 400);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
-
-  const menuItems = [
-    { name: "Beranda", href: "/" },
-    { name: "Harga & Layanan", href: "/pricing" },
-    { name: "Portfolio", href: "/portfolio" },
+export default function Navbar({
+  brand = "Monarch",
+  links = [
+    { label: "Beranda", href: "/" },
+    { label: "Harga & Layanan", href: "/pricing" },
+    { label: "Portfolio", href: "/portfolio" },
     {
-      name: "Profil",
+      label: "Profil",
       dropdown: [
-        { name: "Tentang Perusahaan", href: "/profile" },
-        { name: "Tentang Tim", href: "/team" },
-        { name: "Penghargaan", href: "/awards" },
+        { label: "Tentang Perusahaan", href: "/profile" },
+        { label: "Tentang Tim", href: "/team" },
+        { label: "Penghargaan", href: "/awards" },
       ],
     },
-    { name: "Informasi", href: "/information" },
-    { name: "Kontak", href: "/contact" },
-  ];
+    { label: "Informasi", href: "/information" },
+    { label: "Kontak", href: "/contact" },
+  ],
+}) {
+  const [open, setOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(null);
+
+  const panel = {
+    hidden: { opacity: 0, y: -12 },
+    visible: { opacity: 1, y: 0, transition: { stiffness: 400, damping: 30 } },
+    exit: { opacity: 0, y: -8, transition: { duration: 0.18 } },
+  };
 
   return (
-    <>
-      <nav className="flex items-center justify-between p-3 mx-auto fixed top-0 z-50 w-full backdrop-blur bg-black/15">
-        {/* Logo */}
-        <Link href="/" className="flex flex-1 items-center gap-2">
-          <Image
-            src="/images/brand/logos.png"
-            alt="Bless Architect Logo"
-            width={50}
-            height={50}
-            className="rounded-lg"
-          />
-        </Link>
+    <header className="fixed top-4 left-0 right-0 z-50 px-4 md:px-8">
+      <nav className="mx-auto w-full bg-white/6 backdrop-blur-md border border-white/15 rounded-2xl px-4 py-3 flex items-center justify-between gap-4">
+        {/* Brand */}
+        <div className="flex items-center gap-3">
+          <span className="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden">
+            <Image
+              src="/images/brand/logos.png"
+              alt="Brand Logo"
+              width={24}
+              height={24}
+              className="object-contain"
+            />
+          </span>
+          {/* <span className="font-semibold text-white">{brand}</span> */}
+        </div>
 
-        {/* Menu Desktop */}
-        <ul className="hidden md:flex flex-2 gap-6 text-white relative">
-          {menuItems.map((item, i) =>
-            item.dropdown ? (
-              <li key={i} className="relative group">
-                <span className="hover:text-yellow-300 text-md transition-colors duration-300 flex items-center gap-1 cursor-pointer">
-                  {item.name} ▾
-                </span>
+        {/* Desktop links */}
+        <ul className="hidden md:flex items-center gap-6 relative">
+          {links.map((l) =>
+            l.dropdown ? (
+              <li
+                key={l.label}
+                className="relative group"
+                onMouseEnter={() => setDropdownOpen(l.label)}
+                onMouseLeave={() => setDropdownOpen(null)}
+              >
+                <button className="flex items-center gap-1 text-sm text-white/90 hover:text-white transition-colors">
+                  {l.label}
+                  <HiChevronDown className="w-4 h-4" />
+                </button>
 
-                {/* Dropdown muncul saat hover */}
-                <ul className="absolute top-full left-0 mt-2 bg-black/80 backdrop-blur rounded-lg shadow-md py-2 w-60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-                  {item.dropdown.map((sub, j) => (
-                    <li key={j}>
-                      <Link
-                        href={sub.href}
-                        className="block px-4 py-2 hover:bg-yellow-400 hover:text-black transition rounded-md"
-                      >
-                        {sub.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                {/* Dropdown */}
+                <AnimatePresence>
+                  {dropdownOpen === l.label && (
+                    <motion.ul
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-full left-0 mt-2 w-48 rounded-xl bg-black/80 border border-white/10 shadow-lg backdrop-blur-lg p-2 flex flex-col"
+                    >
+                      {l.dropdown.map((d) => (
+                        <li key={d.href}>
+                          <Link
+                            href={d.href}
+                            className="block px-3 py-2 text-sm text-white/90 hover:text-black hover:bg-yellow-300 rounded-lg"
+                          >
+                            {d.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </motion.ul>
+                  )}
+                </AnimatePresence>
               </li>
             ) : (
-              <li key={i}>
+              <li key={l.href}>
                 <Link
-                  href={item.href}
-                  className="hover:text-yellow-300 text-md transition-colors duration-300"
+                  href={l.href}
+                  className="relative text-sm text-white/90 hover:text-yellow-500 transition-colors 
+                    after:content-[''] after:absolute after:left-0 after:bottom-0 
+                    after:w-full after:h-[1px] after:bg-yellow-500 after:scale-x-0
+                    after:origin-left after:transition-transform after:duration-300 
+                    hover:after:scale-x-100"
                 >
-                  {item.name}
+                  {l.label}
                 </Link>
               </li>
             )
           )}
         </ul>
 
-        {/* Hamburger Mobile */}
-        <div className="md:hidden text-yellow-400">
-          <Hamburger toggled={isOpen} toggle={setIsOpen} />
+        {/* CTA + Hamburger */}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/portfolio"
+            className="hidden md:inline-block text-white text-sm px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/6 hover:bg-white/12 transition"
+          >
+            Portfolio
+          </Link>
+          <button
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((s) => !s)}
+            className="md:hidden p-2 rounded-lg bg-white/4 hover:bg-white/6 transition"
+          >
+            {open ? (
+              <HiX className="w-6 h-6 text-white" />
+            ) : (
+              <HiMenu className="w-6 h-6 text-white" />
+            )}
+          </button>
         </div>
       </nav>
 
       {/* Mobile Menu */}
-      {showMenu && (
-        <div
-          className={`md:hidden fixed top-0 left-0 w-full h-screen backdrop-blur bg-black/35 text-white flex flex-col items-center justify-center gap-6 z-40 transform transition-all duration-400 ${
-            isOpen
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 -translate-y-5 pointer-events-none"
-          }`}
-          data-aos={isOpen ? "fade-down" : undefined}
-        >
-          {menuItems.map((item, i) =>
-            item.dropdown ? (
-              <div key={i} className="flex flex-col items-center gap-2">
-                <button
-                  onClick={() => setOpenProfileMobile(!openProfileMobile)}
-                  className="hover:text-yellow-300 text-lg transition-colors duration-300"
-                >
-                  {item.name} ▾
-                </button>
-                {openProfileMobile && (
-                  <div className="flex flex-col gap-2">
-                    {item.dropdown.map((sub, j) => (
-                      <Link
-                        key={j}
-                        href={sub.href}
-                        className="text-sm hover:text-yellow-300 transition"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {sub.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                key={i}
-                href={item.href}
-                className="hover:text-yellow-300 text-lg transition-colors duration-300"
-                onClick={() => setIsOpen(false)}
-              >
-                {item.name}
-              </Link>
-            )
-          )}
-          <Link
-            href="https://wa.me/6285176965609"
-            className="bg-yellow-400 text-black px-4 py-2 rounded-full hover:bg-yellow-500 transition"
-            onClick={() => setIsOpen(false)}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            key="mobile-panel"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 md:hidden"
+            onClick={() => setOpen(false)}
           >
-            Hubungi Kami
-          </Link>
-        </div>
-      )}
-    </>
+            <div className="absolute inset-0 bg-black/55 backdrop-blur-sm" />
+
+            <motion.div
+              className="absolute left-4 right-4 top-20 rounded-2xl bg-white/6 border border-white/6 p-6 mx-4"
+              variants={panel}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ul className="flex flex-col gap-4">
+                {links.map((l) =>
+                  l.dropdown ? (
+                    <li key={l.label}>
+                      <details className="group">
+                        <summary className="flex items-center justify-between cursor-pointer px-2 py-2 rounded-lg text-white/95 text-lg font-medium hover:bg-white/4">
+                          {l.label}
+                          <HiChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" />
+                        </summary>
+                        <ul className="pl-4 mt-2 flex flex-col gap-2">
+                          {l.dropdown.map((d) => (
+                            <li key={d.href}>
+                              <Link
+                                href={d.href}
+                                className="block text-white/80 text-sm px-2 py-1 rounded hover:bg-white/5"
+                                onClick={() => setOpen(false)}
+                              >
+                                {d.label}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    </li>
+                  ) : (
+                    <li key={l.href}>
+                      <Link
+                        href={l.href}
+                        className="block text-white/95 text-lg font-medium py-2 px-2 rounded-lg hover:bg-white/4 transition"
+                        onClick={() => setOpen(false)}
+                      >
+                        {l.label}
+                      </Link>
+                    </li>
+                  )
+                )}
+              </ul>
+
+              <div className="mt-6">
+                <Link
+                  href="/portfolio"
+                  className="block text-center text-sm text-white px-4 py-2 rounded-lg bg-white/10 border border-white/6"
+                  onClick={() => setOpen(false)}
+                >
+                  Portfolio
+                </Link>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   );
 }
