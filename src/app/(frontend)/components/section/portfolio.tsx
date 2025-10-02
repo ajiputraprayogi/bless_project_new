@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 interface Project {
-  id: number;        // dari API
+  id: number;
   title: string;
   desc: string;
   img: string;
@@ -20,21 +20,33 @@ export default function PortfolioPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // ganti URL sesuai endpoint API kamu
-    const fetchProjects = async () => {
-      try {
-        const res = await fetch("/api/portofolio/");
-        if (!res.ok) throw new Error("Failed to fetch data");
-        const data: Project[] = await res.json();
-        setProjects(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const cached = sessionStorage.getItem("projects");
 
-    fetchProjects();
+    if (cached) {
+      // ✅ pake cache dulu
+      setProjects(JSON.parse(cached));
+      setLoading(false);
+    } else {
+      // ✅ kalau belum ada cache, fetch API
+      const fetchProjects = async () => {
+        try {
+          const res = await fetch("/api/portofolio/");
+          if (!res.ok) throw new Error("Failed to fetch data");
+          const data: Project[] = await res.json();
+
+          setProjects(data);
+
+          // simpan ke sessionStorage
+          sessionStorage.setItem("projects", JSON.stringify(data));
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchProjects();
+    }
   }, []);
 
   return (
@@ -71,7 +83,10 @@ export default function PortfolioPage() {
               transition={{ delay: idx * 0.1, duration: 0.5 }}
               className={`bg-gray-900 rounded-xl overflow-hidden flex flex-col group ${proj.size}`}
             >
-              <Link href={`/portfolio/${proj.slug}`} className="relative w-full h-64 sm:h-full block">
+              <Link
+                href={`/portfolio/${proj.slug}`}
+                className="relative w-full h-64 sm:h-full block"
+              >
                 <Image
                   src={proj.img}
                   alt={proj.title}
@@ -82,15 +97,6 @@ export default function PortfolioPage() {
                   <h3 className="text-lg text-yellow-300 font-semibold mb-2">
                     {proj.title}
                   </h3>
-                  {/* Mobile (dipotong 5 kata) */}
-                  {/* <p className="text-gray-300 text-sm md:hidden">
-                    {proj.desc.split(" ").slice(0, 5).join(" ") + "..."}
-                  </p> */}
-
-                  {/* Desktop (full) */}
-                  {/* <p className="text-gray-300 text-sm hidden md:block">
-                    {proj.desc.split(" ").slice(0, 15).join(" ") + "..."}
-                  </p> */}
                 </div>
               </Link>
             </motion.div>

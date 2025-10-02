@@ -32,7 +32,7 @@ function FeatureRow({ title, desc, img, slug }: Feature) {
       <span className="text-base md:text-lg font-semibold text-yellow-500">
         {title}
       </span>
-      {/* <p className="text-sm text-gray-400">{desc}</p> */}
+      <p className="text-sm text-gray-400">{desc}</p>
     </Link>
   );
 }

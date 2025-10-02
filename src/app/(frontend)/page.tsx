@@ -2,16 +2,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FiHome } from "react-icons/fi";
-import { GiHammerNails, GiDeskLamp } from "react-icons/gi";
 import { useEffect, useState } from "react";
 import StepCard from "./components/section/step";
 import BenefitSection from "./components/section/benefit";
 import MottoPage from "./components/section/motto";
 import PortfolioPage from "./components/section/portfolio";
 import StepSection from "./components/section/tahapan";
-import { FaHome, FaTools } from "react-icons/fa";
-import { HiOutlineLightBulb } from "react-icons/hi";
+
+import { FiHome } from "react-icons/fi";
+import { GiHammerNails, GiDeskLamp } from "react-icons/gi";
 
 export default function LuxuryContractor() {
   const [bgImage, setBgImage] = useState<string | null>(null);

@@ -107,12 +107,12 @@ export default function Navbar({
 
         {/* CTA + Hamburger */}
         <div className="flex items-center gap-3">
-          <a
+          <Link
             href="/portfolio"
             className="hidden md:inline-block text-white text-sm px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/6 hover:bg-white/12 transition"
           >
             Portfolio
-          </a>
+          </Link>
           <button
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
@@ -161,13 +161,13 @@ export default function Navbar({
                         <ul className="pl-4 mt-2 flex flex-col gap-2">
                           {l.dropdown.map((d) => (
                             <li key={d.href}>
-                              <a
+                              <Link
                                 href={d.href}
                                 className="block text-white/80 text-sm px-2 py-1 rounded hover:bg-white/5"
                                 onClick={() => setOpen(false)}
                               >
                                 {d.label}
-                              </a>
+                              </Link>
                             </li>
                           ))}
                         </ul>
@@ -175,26 +175,26 @@ export default function Navbar({
                     </li>
                   ) : (
                     <li key={l.href}>
-                      <a
+                      <Link
                         href={l.href}
                         className="block text-white/95 text-lg font-medium py-2 px-2 rounded-lg hover:bg-white/4 transition"
                         onClick={() => setOpen(false)}
                       >
                         {l.label}
-                      </a>
+                      </Link>
                     </li>
                   )
                 )}
               </ul>
 
               <div className="mt-6">
-                <a
+                <Link
                   href="/portfolio"
                   className="block text-center text-sm text-white px-4 py-2 rounded-lg bg-white/10 border border-white/6"
                   onClick={() => setOpen(false)}
                 >
                   Portfolio
-                </a>
+                </Link>
               </div>
             </motion.div>
           </motion.div>

@@ -12,7 +12,7 @@ export async function GET() {
     { label: "Cahaya Terang Alami", image: "/images/icons/apple.png" },
     { label: "Sirkulasi Hybrid", image: "/images/icons/github.png" },
     { label: "Material Berkelas", image: "/images/icons/vk.png" },
-    { label: "Fasilitas Lengkap", image: "/images/icons/apple.png" },
+    { label: "Fasilitas Lengkap", image: "/images/icon/apple.png" },
   ];
 
   return NextResponse.json(coreFeatures);
