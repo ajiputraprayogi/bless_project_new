@@ -2,12 +2,16 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { FiHome } from "react-icons/fi";
+import { GiHammerNails, GiDeskLamp } from "react-icons/gi";
 import { useEffect, useState } from "react";
 import StepCard from "./components/section/step";
 import BenefitSection from "./components/section/benefit";
 import MottoPage from "./components/section/motto";
 import PortfolioPage from "./components/section/portfolio";
 import StepSection from "./components/section/tahapan";
+import { FaHome, FaTools } from "react-icons/fa";
+import { HiOutlineLightBulb } from "react-icons/hi";
 
 export default function LuxuryContractor() {
   const [bgImage, setBgImage] = useState<string | null>(null);
@@ -17,17 +21,17 @@ export default function LuxuryContractor() {
     {
       title: "Desain Rumah Mewah",
       text: "Kami menciptakan desain rumah yang mewah dan elegan, sesuai dengan gaya hidup Anda. Setiap detail dirancang untuk memberikan kenyamanan dan kemewahan tiada tara.",
-      icon: <img src="/images/icon/home.png" alt="home" className="w-8 h-8" />,
+      icon: <FiHome size={32} className="text-yellow-400" />,
     },
     {
       title: "Konstruksi & Renovasi",
       text: "Tim profesional kami menangani konstruksi dan renovasi rumah mewah dengan presisi tinggi. Pastikan proyek selesai tepat waktu dan sesuai standar kualitas premium.",
-      icon: <img src="/images/icon/hammer.png" alt="hammer" className="w-8 h-8" />,
+      icon: <GiHammerNails size={32} className="text-yellow-400" />,
     },
     {
       title: "Konsultasi & Interior",
       text: "Kami memberikan konsultasi desain interior dan eksterior untuk rumah mewah Anda. Transformasikan hunian menjadi karya seni yang memukau dan nyaman untuk keluarga.",
-      icon: <img src="/images/icon/lamp.png" alt="lamp" className="w-8 h-8" />,
+      icon: <GiDeskLamp size={32} className="text-yellow-400" />,
     },
   ];
 

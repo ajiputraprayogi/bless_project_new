@@ -81,3 +81,17 @@ input {
     inset: 0 35px 35px 0;
   }
 }
+
+/* Glow The Monarch */
+@keyframes flash {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.1;
+  }
+}
+
+.flash-link {
+  animation: flash 1s linear infinite;
+}
