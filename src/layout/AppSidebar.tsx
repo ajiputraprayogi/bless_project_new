@@ -84,6 +84,11 @@ const navItems: NavItem[] = [
     name: "Keunggulan",
     path: "/backend/keunggulan",
   },
+  {
+    icon:  <UserCircleIcon />,
+    name: "Setting Web",
+    path: "/backend/banner",
+  },
   // {
   //   name: "Forms",
   //   icon: <ListIcon />,

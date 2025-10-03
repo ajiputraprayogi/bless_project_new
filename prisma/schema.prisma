@@ -47,6 +47,7 @@ model users {
   nama       String
   email      String       @unique
   password   String
+  banner     banner[]
   keunggulan keunggulan[]
   portofolio portofolio[]
   user_roles user_roles[]
@@ -160,18 +161,6 @@ model payment_step_detail {
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model kekurangan {
-  id        Int    @id @default(autoincrement())
-  deskripsi String
-}
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model kelebihan {
-  id        Int    @id @default(autoincrement())
-  deskripsi String
-}
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model keunggulan {
   id          Int       @id @default(autoincrement())
   title       String    @db.VarChar(255)
@@ -182,4 +171,15 @@ model keunggulan {
   created_at  DateTime? @default(now()) @db.Timestamp(6)
   updated_at  DateTime? @default(now()) @db.Timestamp(6)
   users       users     @relation(fields: [created_by], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_keunggulan_user")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model banner {
+  id         Int       @id @default(autoincrement())
+  image      String    @db.VarChar(255)
+  is_active  Boolean   @default(true)
+  created_by Int
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  users      users     @relation(fields: [created_by], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_banner_user")
 }
