@@ -17,7 +17,7 @@ export default function Navbar({
       dropdown: [
         { label: "Tentang Perusahaan", href: "/profile" },
         { label: "Tentang Tim", href: "/team" },
-        { label: "Penghargaan", href: "/awards" },
+        // { label: "Penghargaan", href: "/awards" },
       ],
     },
     { label: "Informasi", href: "/information" },
@@ -39,6 +39,7 @@ export default function Navbar({
         {/* Brand */}
         <div className="flex items-center gap-3">
           <span className="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden">
+            <Link href={"/"}>
             <Image
               src="/images/brand/logos.png"
               alt="Brand Logo"
@@ -46,6 +47,7 @@ export default function Navbar({
               height={24}
               className="object-contain"
             />
+            </Link>
           </span>
           {/* <span className="font-semibold text-white">{brand}</span> */}
         </div>

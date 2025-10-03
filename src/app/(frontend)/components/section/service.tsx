@@ -48,7 +48,9 @@ export default function ServicePage() {
       </div>
 
       {loading ? (
-        <p className="text-center text-gray-400">Loading...</p>
+        <div className="min-h-screen flex items-center justify-center text-yellow-500">
+          <div className="loader"></div>
+        </div>
       ) : (
         <motion.div
           initial="hidden"

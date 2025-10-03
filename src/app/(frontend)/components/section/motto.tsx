@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import useSWR from "swr";
 import Link from "next/link";
 
 type Feature = {
@@ -10,6 +10,8 @@ type Feature = {
   desc: string;
   img: string;
 };
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
@@ -25,36 +27,26 @@ function Card({ children }: { children: React.ReactNode }) {
 
 function FeatureRow({ title, desc, img, slug }: Feature) {
   return (
-    <Link href={`/pricing/${slug}`} className="flex flex-col items-center justify-center gap-3 text-center h-full">
+    <Link
+      href={`/pricing/${slug}`}
+      className="flex flex-col items-center justify-center gap-3 text-center h-full"
+    >
       <span className="inline-flex size-12 items-center justify-center rounded-xl bg-white text-yellow-400 shadow-sm group-hover:shadow-md overflow-hidden">
         <img src={img} alt={title} className="size-8 object-contain" />
       </span>
       <span className="text-base md:text-lg font-semibold text-yellow-500">
         {title}
       </span>
-      <p className="text-sm text-gray-400">{desc}</p>
+      {/* <p className="text-sm text-gray-400">{desc}</p> */}
     </Link>
   );
 }
 
 export default function MottoPage() {
-  const [features, setFeatures] = useState<Feature[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch("/api/keunggulan");
-        const data = await res.json();
-        setFeatures(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
+  const { data, error, isLoading } = useSWR<Feature[]>("/api/keunggulan", fetcher, {
+    dedupingInterval: 24 * 60 * 60 * 1000, // 1 jam
+    revalidateOnFocus: false,  // biar gak refetch tiap pindah tab
+  });
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-20 bg-black">
@@ -63,11 +55,15 @@ export default function MottoPage() {
           Keunggulan Utama
         </h2>
 
-        {loading ? (
-          <p className="text-gray-400">Loading...</p>
+        {isLoading ? (
+          <div className="min-h-screen flex items-center justify-center text-yellow-500">
+          <div className="loader"></div>
+        </div>
+        ) : error ? (
+          <p className="text-red-400">Gagal memuat data.</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((f) => (
+            {data?.map((f) => (
               <Card key={f.id}>
                 <FeatureRow {...f} />
               </Card>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
@@ -13,26 +13,13 @@ type TeamMember = {
   size?: string;
 };
 
-export default function TeamPage() {
-  const [team, setTeam] = useState<TeamMember[]>([]);
-  const [loading, setLoading] = useState(true); // ⬅️ state loading
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  // Fetch tim dari API
-  useEffect(() => {
-    const fetchTeam = async () => {
-      try {
-        const res = await fetch("/api/tim");
-        if (!res.ok) throw new Error("Gagal fetch tim");
-        const data: TeamMember[] = await res.json();
-        setTeam(data);
-      } catch (error) {
-        console.error("Gagal fetch tim:", error);
-      } finally {
-        setLoading(false); // ⬅️ selesai loading
-      }
-    };
-    fetchTeam();
-  }, []);
+export default function TeamPage() {
+  const { data, error, isLoading } = useSWR<TeamMember[]>("/api/tim", fetcher, {
+    dedupingInterval: 24 * 60 * 60 * 1000, // cache 1 jam
+    revalidateOnFocus: false,  // gak auto-refetch tiap pindah tab
+  });
 
   return (
     <>
@@ -47,11 +34,15 @@ export default function TeamPage() {
           </p>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           // Loading state
           <div className="min-h-screen flex items-center justify-center text-yellow-500">
-          <div className="loader"></div>
-        </div>
+            <div className="loader"></div>
+          </div>
+        ) : error ? (
+          <div className="min-h-screen flex items-center justify-center text-red-400">
+            Gagal memuat data tim.
+          </div>
         ) : (
           // Data tim
           <motion.div
@@ -60,7 +51,7 @@ export default function TeamPage() {
             viewport={{ once: true, amount: 0.2 }}
             className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 auto-rows-[280px] sm:auto-rows-[320px] grid-flow-dense"
           >
-            {team.map((member, idx) => (
+            {data?.map((member, idx) => (
               <motion.div
                 key={member.id}
                 initial={{ opacity: 0, y: 30 }}

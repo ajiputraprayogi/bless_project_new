@@ -1,6 +1,7 @@
 "use client";
 
-import { JSX, useEffect, useState } from "react";
+import { JSX } from "react";
+import useSWR from "swr";
 import { motion } from "framer-motion";
 import {
   FaInstagram,
@@ -32,25 +33,13 @@ interface Contact {
   icon: string;
 }
 
-export default function ContactPage() {
-  const [socials, setSocials] = useState<Contact[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  // Fetch data dari API
-  useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        const res = await fetch("/api/kontak");
-        const data = await res.json();
-        setSocials(data);
-      } catch (error) {
-        console.error("Gagal fetch kontak:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchContacts();
-  }, []);
+export default function ContactPage() {
+  const { data, error, isLoading } = useSWR<Contact[]>("/api/kontak", fetcher, {
+    dedupingInterval: 24 * 60 * 60 * 1000, // cache 1 jam
+    revalidateOnFocus: false,  // gak refetch pas balik tab
+  });
 
   const fadeIn = {
     hidden: { opacity: 0, y: 30 },
@@ -75,13 +64,15 @@ export default function ContactPage() {
         </p>
 
         {/* Grid Sosial Media */}
-        {loading ? (
+        {isLoading ? (
           <div className="min-h-screen flex items-center justify-center text-yellow-500">
-          <div className="loader"></div>
-        </div>
+            <div className="loader"></div>
+          </div>
+        ) : error ? (
+          <p className="text-red-400 text-center">Gagal memuat kontak.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-10">
-            {socials.map((item) => (
+            {data?.map((item) => (
               <motion.div
                 key={item.id}
                 variants={fadeIn}
