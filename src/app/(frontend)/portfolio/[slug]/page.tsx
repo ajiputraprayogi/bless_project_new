@@ -40,7 +40,9 @@ export default function ProjectSlugPage() {
     fetchProject();
   }, [slug]);
 
-  if (loading) return <p className="text-center text-gray-400">Loading...</p>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-yellow-500">
+    <div className="loader"></div>
+  </div>;
   if (!project) return <p className="text-center text-red-400">Project not found</p>;
 
   const adminNumber = "6285176965609";

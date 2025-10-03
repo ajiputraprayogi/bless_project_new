@@ -1,10 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import useSWR from "swr";
 
 interface Project {
   id: number;
@@ -15,39 +15,23 @@ interface Project {
   slug: string;
 }
 
+// fetcher untuk SWR
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export default function PortfolioPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  // pakai SWR
+  const { data: projects, error, isLoading } = useSWR<Project[]>("/api/portofolio/", fetcher, {
+    revalidateOnFocus: false, // ga re-fetch saat tab fokus lagi
+    dedupingInterval: 24 * 60 * 60 * 1000, // 1 hari cache
+  });
 
-  useEffect(() => {
-    const cached = sessionStorage.getItem("projects");
-
-    if (cached) {
-      // ✅ pake cache dulu
-      setProjects(JSON.parse(cached));
-      setLoading(false);
-    } else {
-      // ✅ kalau belum ada cache, fetch API
-      const fetchProjects = async () => {
-        try {
-          const res = await fetch("/api/portofolio/");
-          if (!res.ok) throw new Error("Failed to fetch data");
-          const data: Project[] = await res.json();
-
-          setProjects(data);
-
-          // simpan ke sessionStorage
-          sessionStorage.setItem("projects", JSON.stringify(data));
-        } catch (err) {
-          console.error(err);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchProjects();
-    }
-  }, []);
+  if (error) {
+    return (
+      <div className="bg-black text-white min-h-screen flex items-center justify-center">
+        <p className="text-red-500">Gagal memuat proyek.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-black text-white min-h-screen py-16 px-6 md:px-12 lg:px-20">
@@ -61,7 +45,7 @@ export default function PortfolioPage() {
         </h2>
       </div>
 
-      {loading ? (
+      {isLoading || !projects ? (
         <div className="min-h-screen flex items-center justify-center text-yellow-500">
           <div className="loader"></div>
         </div>

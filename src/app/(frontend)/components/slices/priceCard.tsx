@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import useSWR from "swr";
 
 interface Fitur {
   id: number;
@@ -26,54 +26,62 @@ interface PackageUI {
   waLink: string;
 }
 
+// fetcher untuk SWR
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export default function PriceCard() {
-  const [packages, setPackages] = useState<PackageUI[]>([]);
-  const [loading, setLoading] = useState(true);
+  // pakai SWR
+  const { data, error, isLoading } = useSWR<PackageAPI[]>("/api/paket", fetcher, {
+    revalidateOnFocus: false, // ga fetch ulang saat tab fokus
+    dedupingInterval: 24 * 60 * 60 * 1000, // cache 1 hari
+  });
 
-  useEffect(() => {
-    fetch('/api/paket')
-      .then(res => res.json())
-      .then((data: PackageAPI[]) => {
-        const mapped: PackageUI[] = data.map(pkg => ({
-          name: pkg.name,
-          price: pkg.harga,
-          features: pkg.fitur.map(f => f.fitur),
-          button: 'Pilih Paket',
-          color: getColorById(pkg.id),
-          waLink: `https://wa.me/6285176965609?text=Halo%20saya%20ingin%20memesan%20${encodeURIComponent(pkg.name)}`,
-        }));
-        setPackages(mapped);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Failed to fetch packages:', err);
-        setLoading(false);
-      });
-  }, []);
+  // fungsi mapping API ke UI
+  const mapPackages = (data: PackageAPI[]): PackageUI[] =>
+    data.map(pkg => ({
+      name: pkg.name,
+      price: pkg.harga,
+      features: pkg.fitur.map(f => f.fitur),
+      button: "Pilih Paket",
+      color: getColorById(pkg.id),
+      waLink: `https://wa.me/6285176965609?text=Halo%20saya%20ingin%20memesan%20${encodeURIComponent(
+        pkg.name
+      )}`,
+    }));
 
-  // Fungsi sederhana untuk kasih warna berdasarkan id paket
+  // Fungsi warna
   const getColorById = (id: number) => {
     switch (id) {
       case 1:
-        return 'bg-blue-100 text-blue-700';
+        return "bg-blue-100 text-blue-700";
       case 2:
-        return 'bg-green-100 text-green-700';
+        return "bg-green-100 text-green-700";
       case 3:
-        return 'bg-gray-100 text-gray-700';
+        return "bg-gray-100 text-gray-700";
       case 4:
-        return 'bg-yellow-100 text-yellow-700';
+        return "bg-yellow-100 text-yellow-700";
       default:
-        return 'bg-gray-100 text-gray-700';
+        return "bg-gray-100 text-gray-700";
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-yellow-500">
         <div className="loader"></div>
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        Gagal memuat paket.
+      </div>
+    );
+  }
+
+  const packages = data ? mapPackages(data) : [];
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6 py-16">
