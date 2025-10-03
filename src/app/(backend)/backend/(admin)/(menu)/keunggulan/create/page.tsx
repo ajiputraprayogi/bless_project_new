@@ -7,11 +7,11 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import ComponentCard from "@/components/common/ComponentCard";
 import Label from "@/components/form/Label";
 import Input from "@/components/form/input/InputField";
+import TextArea from "@/components/form/input/TextArea";
 import FileInput from "@/components/form/input/FileInput";
 import Button from "@/components/ui/button/Button";
 
 function CreateKeunggulan() {
-  // State 'slug' dihapus karena akan digenerate di backend
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -26,7 +26,6 @@ function CreateKeunggulan() {
     if (file) {
       setImageFile(file);
 
-      // bersihkan URL lama
       if (previewRef.current) URL.revokeObjectURL(previewRef.current);
 
       const url = URL.createObjectURL(file);
@@ -40,7 +39,6 @@ function CreateKeunggulan() {
     }
   };
 
-  // cleanup hanya saat unmount
   useEffect(() => {
     return () => {
       if (previewRef.current) URL.revokeObjectURL(previewRef.current);
@@ -50,15 +48,13 @@ function CreateKeunggulan() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // Validasi dasar, hanya 'title' yang wajib diisi
     if (!title) {
       alert("Judul Keunggulan wajib diisi.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("title", title); 
-    // formData.append("slug", slug); -> Dihapus
+    formData.append("title", title);
     formData.append("description", description);
     if (imageFile) formData.append("image", imageFile);
 
@@ -75,7 +71,6 @@ function CreateKeunggulan() {
         throw new Error(err.error || "Gagal membuat keunggulan");
       }
 
-      // Redirect setelah berhasil
       router.push("/backend/keunggulan");
     } catch (error) {
       console.error(error);
@@ -90,8 +85,6 @@ function CreateKeunggulan() {
       <PageBreadcrumb pageTitle="Tambah Keunggulan" />
       <ComponentCard title="Form Tambah Keunggulan">
         <form onSubmit={handleSubmit} className="grid gap-4">
-          
-          {/* Input untuk Title (Judul Keunggulan) */}
           <div>
             <Label>Judul Keunggulan</Label>
             <Input
@@ -104,21 +97,16 @@ function CreateKeunggulan() {
             />
           </div>
 
-          {/* Input untuk Slug Dihapus */}
-          
-          {/* Input untuk Deskripsi */}
           <div>
             <Label>Deskripsi</Label>
-            <textarea
-              className="w-full rounded-md border border-gray-300 p-2"
-              rows={4}
+            <TextArea
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(val) => setDescription(val)} // ❌ langsung val, bukan e.target.value
               placeholder="Deskripsi keunggulan"
+              rows={4}
             />
           </div>
 
-          {/* Input File Gambar */}
           <div>
             <Label>Upload Gambar</Label>
             <FileInput onChange={handleFileChange} className="custom-class" />
@@ -153,5 +141,4 @@ function CreateKeunggulan() {
   );
 }
 
-// Sesuaikan permission default untuk komponen
 export default withPermission(CreateKeunggulan, "add-keunggulan");

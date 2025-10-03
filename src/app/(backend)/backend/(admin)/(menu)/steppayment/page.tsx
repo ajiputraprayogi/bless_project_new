@@ -148,17 +148,17 @@ function StepPaymentPage() {
                     // Gabungkan semua detail ke dalam satu string atau komponen
                     const detailsContent = step.payment_step_detail.map((detail, index) => (
                       <div key={detail.id} className={index > 0 ? "mt-2" : ""}>
-                        <strong>{detail.sub_title}</strong>
-                        <p className="text-gray-600 dark:text-gray-300">{detail.description}</p>
+                        <strong className="text-gray-800 dark:text-white/90">{detail.sub_title}</strong>
+                        <p className="text-gray-600 dark:text-white/90">{detail.description}</p>
                       </div>
                     ));
 
                     return (
                       <TableRow key={step.id}>
-                        <TableCell className="px-5 py-4 text-center">
+                        <TableCell className="px-5 py-4 text-center text-gray-800 dark:text-white/90">
                           {step.step_number}
                         </TableCell>
-                        <TableCell className="px-5 py-4 text-start">
+                        <TableCell className="px-5 py-4 text-start text-gray-800 dark:text-white/90">
                           {step.title || "-"}
                         </TableCell>
                         <TableCell className="px-5 py-4 text-start">
