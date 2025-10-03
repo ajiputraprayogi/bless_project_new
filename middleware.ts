@@ -5,23 +5,28 @@ import type { NextRequest } from "next/server";
 const secret = process.env.NEXTAUTH_SECRET;
 
 export async function middleware(req: NextRequest) {
-  // cek token user dari next-auth (JWT)
   const token = await getToken({ req, secret });
-
   const { pathname } = req.nextUrl;
 
-  // jika akses route /backend dan token tidak ada (belum login)
-  if (pathname.startsWith("/backend") && !token) {
-    // redirect ke halaman login
+  // 1️⃣ Jika user sudah login dan mencoba buka /login → redirect ke /backend
+  if (token && pathname === "/login") {
+    return NextResponse.redirect(new URL("/backend", req.url));
+  }
+
+  // 2️⃣ Jika user BELUM login dan mencoba akses /backend → redirect ke /login
+  if (!token && pathname.startsWith("/backend")) {
     const loginUrl = new URL("/login", req.url);
+
+    // simpan callbackUrl supaya setelah login bisa kembali
+    loginUrl.searchParams.set("callbackUrl", pathname);
+
     return NextResponse.redirect(loginUrl);
   }
 
-  // izinkan akses (next)
+  // izinkan akses jika tidak ada masalah
   return NextResponse.next();
 }
 
-// hanya jalankan middleware untuk route /backend dan turunannya
 export const config = {
-  matcher: ["/backend/:path*"],
+  matcher: ["/login", "/backend/:path*"], // middleware jalan di login + backend
 };

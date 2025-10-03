@@ -7,11 +7,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 interface Project {
-  id: number;        // dari API
+  id: number;
   title: string;
   desc: string;
   img: string;
   size: string;
+  slug: string;
 }
 
 export default function PortfolioPage() {
@@ -19,21 +20,33 @@ export default function PortfolioPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // ganti URL sesuai endpoint API kamu
-    const fetchProjects = async () => {
-      try {
-        const res = await fetch("/dummyapi/data"); 
-        if (!res.ok) throw new Error("Failed to fetch data");
-        const data: Project[] = await res.json();
-        setProjects(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const cached = sessionStorage.getItem("projects");
 
-    fetchProjects();
+    if (cached) {
+      // ✅ pake cache dulu
+      setProjects(JSON.parse(cached));
+      setLoading(false);
+    } else {
+      // ✅ kalau belum ada cache, fetch API
+      const fetchProjects = async () => {
+        try {
+          const res = await fetch("/api/portofolio/");
+          if (!res.ok) throw new Error("Failed to fetch data");
+          const data: Project[] = await res.json();
+
+          setProjects(data);
+
+          // simpan ke sessionStorage
+          sessionStorage.setItem("projects", JSON.stringify(data));
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchProjects();
+    }
   }, []);
 
   return (
@@ -49,7 +62,9 @@ export default function PortfolioPage() {
       </div>
 
       {loading ? (
-        <p className="text-center text-gray-400">Loading...</p>
+        <div className="min-h-screen flex items-center justify-center text-yellow-500">
+          <div className="loader"></div>
+        </div>
       ) : (
         <motion.div
           initial="hidden"
@@ -61,37 +76,31 @@ export default function PortfolioPage() {
           "
         >
           {projects.map((proj, idx) => (
-  <motion.div
-    key={proj.id || idx}
-    initial={{ opacity: 0, y: 30 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: idx * 0.1, duration: 0.5 }}
-    className={`bg-gray-900 rounded-xl overflow-hidden flex flex-col group ${proj.size}`}
-  >
-    <Link href={`/portfolio/${proj.id}`} className="relative w-full h-64 sm:h-full block">
-      <Image
-        src={proj.img}
-        alt={proj.title}
-        fill
-        className="object-cover group-hover:scale-105 transition-transform duration-500"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end p-5">
-        <h3 className="text-lg text-yellow-300 font-semibold mb-2">
-          {proj.title}
-        </h3>
-        {/* Mobile (dipotong 5 kata) */}
-<p className="text-gray-300 text-sm md:hidden">
-  {proj.desc.split(" ").slice(0, 5).join(" ") + "..."}
-</p>
-
-{/* Desktop (full) */}
-<p className="text-gray-300 text-sm hidden md:block">
-  {proj.desc}
-</p>
-      </div>
-    </Link>
-  </motion.div>
-))}
+            <motion.div
+              key={proj.id || idx}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1, duration: 0.5 }}
+              className={`bg-gray-900 rounded-xl overflow-hidden flex flex-col group ${proj.size}`}
+            >
+              <Link
+                href={`/portfolio/${proj.slug}`}
+                className="relative w-full h-64 sm:h-full block"
+              >
+                <Image
+                  src={proj.img}
+                  alt={proj.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end p-5">
+                  <h3 className="text-lg text-yellow-300 font-semibold mb-2">
+                    {proj.title}
+                  </h3>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
         </motion.div>
       )}
     </div>

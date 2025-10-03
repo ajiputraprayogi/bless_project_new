@@ -7,7 +7,8 @@ import { prisma } from "@/lib/db";
 
 export async function GET(request, context) {
   try {
-    const { id } = context.params; 
+    
+    const { id } = await context.params; 
     const roleID = Number(id);
 
     // Ambil role beserta relasi role_has_permissions dan permission-nya

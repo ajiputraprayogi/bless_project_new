@@ -8,10 +8,10 @@ import PortfolioPage from "../components/section/portfolio";
 export default function Portfolio() {
   // List video (bisa ganti id sesuai YouTube)
   const videos = [
-    { id: "dQw4w9WgXcQ", title: "Project 1" },
-    { id: "9bZkp7q19f0", title: "Project 2" },
-    { id: "3JZ_D3ELwOQ", title: "Project 3" },
-    { id: "L_jWHffIx5E", title: "Project 4" },
+    { id: "MusSy_FV_Gg", title: "Rumah Komtemporer" },
+    { id: "VLCVOeDcd7I", title: "Loft Modern" },
+    { id: "qaOF4TAoJDc", title: "Rumah Minimalis" },
+    { id: "fLvE9mORMxw", title: "Rumah Americano" },
     
   ];
 

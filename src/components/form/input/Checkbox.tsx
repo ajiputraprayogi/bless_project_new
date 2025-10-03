@@ -5,7 +5,7 @@ interface CheckboxProps {
   checked: boolean;
   className?: string;
   id?: string;
-  onChange: (checked: boolean) => void;
+  onCheckedChange?: (checked: boolean) => void; // ✅ optional prop baru
   disabled?: boolean;
 }
 
@@ -13,7 +13,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
   label,
   checked,
   id,
-  onChange,
+  onCheckedChange,
   className = "",
   disabled = false,
 }) => {
@@ -30,7 +30,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
           className={`w-5 h-5 appearance-none cursor-pointer dark:border-gray-700 border border-gray-300 checked:border-transparent rounded-md checked:bg-brand-500 disabled:opacity-60 
           ${className}`}
           checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={(e) => onCheckedChange && onCheckedChange(e.target.checked)} // ✅ gunakan onCheckedChange
           disabled={disabled}
         />
         {checked && (

@@ -17,7 +17,7 @@ export default function OrderForm() {
     alamat: "",
   });
 
-  const nomorAdmin = "6281234127399"; // ganti dengan nomor WA tujuan
+  const nomorAdmin = "6285176965609"; // ganti dengan nomor WA tujuan
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>

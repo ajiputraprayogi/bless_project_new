@@ -83,7 +83,14 @@ export default function ServicePage() {
                   <h3 className="text-lg text-yellow-300 font-semibold mb-2">
                     {proj.title}
                   </h3>
-                  <p className="text-gray-300 text-sm hidden md:block">{proj.desc}</p>
+                  <p className="text-gray-300 text-sm md:hidden">
+  {proj.desc.split(" ").slice(0, 5).join(" ") + "..."}
+</p>
+
+{/* Desktop (full) */}
+<p className="text-gray-300 text-sm hidden md:block">
+  {proj.desc.split(" ").slice(0, 15).join(" ") + "..."}
+</p>
                 </div>
               </div>
             </motion.div>

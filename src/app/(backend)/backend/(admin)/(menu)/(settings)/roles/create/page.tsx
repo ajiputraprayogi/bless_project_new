@@ -8,13 +8,14 @@ import ComponentCard from "@/components/common/ComponentCard";
 import Label from "@/components/form/Label";
 import Input from "@/components/form/input/InputField";
 import Button from "@/components/ui/button/Button";
+import Checkbox from "@/components/form/input/Checkbox";
 
 type Permission = {
   id: number;
   name: string;
+  grup?: string;
 };
 
-// ✅ Cache global permissions biar gak fetch ulang terus
 let permissionsCache: Permission[] | null = null;
 
 function CreateRole() {
@@ -25,9 +26,8 @@ function CreateRole() {
   const [initialLoading, setInitialLoading] = useState(!permissionsCache);
   const router = useRouter();
 
-  // Ambil list permissions (pakai cache kalau ada)
   useEffect(() => {
-    if (permissionsCache) return; // langsung pakai cache
+    if (permissionsCache) return;
 
     let abortController = new AbortController();
 
@@ -37,7 +37,7 @@ function CreateRole() {
         if (!res.ok) throw new Error("Gagal mengambil permissions");
         const data: Permission[] = await res.json();
 
-        permissionsCache = data; // ✅ simpan ke cache
+        permissionsCache = data;
         setPermissions(data);
       } catch (error) {
         if ((error as any).name !== "AbortError") {
@@ -50,15 +50,30 @@ function CreateRole() {
     }
 
     fetchPermissions();
-
     return () => abortController.abort();
   }, []);
 
-  // Toggle checkbox permission
   function togglePermission(id: number) {
     setSelectedPermissions((prev) =>
       prev.includes(id) ? prev.filter((pid) => pid !== id) : [...prev, id]
     );
+  }
+
+  function toggleAllPermissions() {
+    if (selectedPermissions.length === permissions.length) {
+      setSelectedPermissions([]);
+    } else {
+      setSelectedPermissions(permissions.map((p) => p.id));
+    }
+  }
+
+  function toggleAllGroupPermissions(groupPerms: Permission[]) {
+    const allSelected = groupPerms.every((p) => selectedPermissions.includes(p.id));
+    if (allSelected) {
+      setSelectedPermissions((prev) => prev.filter((id) => !groupPerms.some((p) => p.id === id)));
+    } else {
+      setSelectedPermissions((prev) => [...new Set([...prev, ...groupPerms.map((p) => p.id)])]);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -76,7 +91,7 @@ function CreateRole() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
-          permissions: selectedPermissions, // kirim array permission ids
+          permissions: selectedPermissions,
         }),
       });
 
@@ -91,6 +106,14 @@ function CreateRole() {
     }
   }
 
+  // gruping permissions by grup name
+  const grupedPermissions = permissions.reduce((grups, perm) => {
+    const grupName = perm.grup || "Lainnya";
+    if (!grups[grupName]) grups[grupName] = [];
+    grups[grupName].push(perm);
+    return grups;
+  }, {} as Record<string, Permission[]>);
+
   if (initialLoading) {
     return (
       <>
@@ -101,6 +124,8 @@ function CreateRole() {
       </>
     );
   }
+
+  const allPermissionsSelected = selectedPermissions.length === permissions.length;
 
   return (
     <div>
@@ -122,23 +147,44 @@ function CreateRole() {
           </div>
 
           <div>
-            <Label>Permissions</Label>
-            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-auto border rounded p-2">
-              {permissions.length === 0 ? (
-                <p className="text-gray-500">Tidak ada permissions</p>
-              ) : (
-                permissions.map((perm) => (
-                  <label key={perm.id} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedPermissions.includes(perm.id)}
-                      onChange={() => togglePermission(perm.id)}
-                      disabled={loading}
-                    />
-                    <span>{perm.name}</span>
-                  </label>
-                ))
-              )}
+            <Label>
+              Permissions
+            </Label>
+
+            <div className="space-y-4 overflow-auto border border-gray-300 dark:border-gray-700 rounded p-2 dark:text-gray-200">
+              {Object.entries(grupedPermissions).map(([grupName, perms]) => {
+                const allGroupSelected = perms.every((p) => selectedPermissions.includes(p.id));
+                return (
+                  <div key={grupName} className="border rounded-md p-3 mb-3 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="font-semibold text-gray-700 dark:text-gray-100">{grupName}</p>
+                      <Checkbox
+                        checked={allGroupSelected}
+                        onCheckedChange={() => toggleAllGroupPermissions(perms)}
+                        label="Pilih Semua"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {perms.map((perm) => (
+                        <Checkbox
+                          key={perm.id}
+                          checked={selectedPermissions.includes(perm.id)}
+                          onCheckedChange={() => togglePermission(perm.id)}
+                          disabled={loading}
+                          label={perm.name}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="flex justify-end mt-2">
+                <Checkbox
+                  checked={allPermissionsSelected}
+                  onCheckedChange={toggleAllPermissions}
+                  label="Pilih Semua Permissions"
+                />
+              </div>
             </div>
           </div>
 

@@ -6,10 +6,9 @@ interface ButtonProps {
   variant?: "primary" | "outline" | "green" | "warning" | "danger"; // Button variant
   startIcon?: ReactNode; // Icon before the text
   endIcon?: ReactNode; // Icon after the text
-  // onClick?: () => void; // Click handler
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void; // Click handler
   disabled?: boolean; // Disabled state
-  className?: string; // Disabled state
+  className?: string; // Custom class
   type?: "button" | "submit" | "reset"; // Button type
 }
 
@@ -22,6 +21,7 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   className = "",
   disabled = false,
+  type = "button", // ✅ default type button
 }) => {
   // Size Classes
   const sizeClasses = {
@@ -37,20 +37,19 @@ const Button: React.FC<ButtonProps> = ({
     outline:
       "bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300",
     green:
-    "bg-green-600 text-white shadow-theme-xs hover:bg-green-600 disabled:bg-green-700",
+      "bg-green-600 text-white shadow-theme-xs hover:bg-green-600 disabled:bg-green-700",
     warning:
-    "bg-yellow-500 text-white shadow-theme-xs hover:bg-yellow-600 disabled:bg-yellow-400",
+      "bg-yellow-500 text-white shadow-theme-xs hover:bg-yellow-600 disabled:bg-yellow-400",
     danger:
-    "bg-red-600 text-white shadow-theme-xs hover:bg-red-600 disabled:bg-red-700",
+      "bg-red-600 text-white shadow-theme-xs hover:bg-red-600 disabled:bg-red-700",
   };
 
   return (
     <button
+      type={type} // ✅ gunakan prop type di sini
       className={`inline-flex items-center justify-center font-medium gap-2 rounded-lg transition ${className} ${
         sizeClasses[size]
-      } ${variantClasses[variant]} ${
-        disabled ? "cursor-not-allowed opacity-50" : ""
-      }`}
+      } ${variantClasses[variant]} ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
       onClick={onClick}
       disabled={disabled}
     >

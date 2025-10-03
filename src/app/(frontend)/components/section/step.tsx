@@ -60,7 +60,7 @@ export default function StepCard({ data }: MottoSectionProps) {
             <div>{item.icon}</div>
             <h3 className="font-semibold text-xl text-yellow-400">{item.title}</h3>
             <p className="text-gray-300 flex-1">{item.text}</p>
-            <button className="mt-auto w-1/3 bg-yellow-400 text-black px-4 py-2 rounded-full hover:bg-yellow-500 transition">
+            <button className="mt-auto w-1/2 md:w-1/3 bg-yellow-400 text-black px-4 py-2 rounded-full hover:bg-yellow-500 transition">
               Pelajari
             </button>
           </SpotlightCard>

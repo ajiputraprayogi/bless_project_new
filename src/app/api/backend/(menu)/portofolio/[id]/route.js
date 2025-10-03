@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { createClient } from "@supabase/supabase-js";
-import slugify from "slugify"; // ✅ pastikan sudah install: npm i slugify
+import slugify from "slugify";
 
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   throw new Error("Supabase environment variables are missing");
@@ -62,6 +62,10 @@ export async function PUT(req, context) {
       return NextResponse.json({ error: "Portofolio tidak ditemukan" }, { status: 404 });
     }
 
+    // ✅ Generate slug baru jika name berubah
+    const newName = name ?? existing.name;
+    const newSlug = slugify(newName, { lower: true, strict: true });
+
     let imageUrl = existing.image;
 
     // ✅ Upload file baru jika ada
@@ -74,11 +78,8 @@ export async function PUT(req, context) {
       const buffer = Buffer.from(await file.arrayBuffer());
       const ext = file.name.split(".").pop();
 
-      // ✅ Buat slug dari name untuk dijadikan prefix file
-      const slugPrefix = slugify(name ?? existing.name, { lower: true, strict: true });
-
       // ✅ Nama file menjadi slug-timestamp.ext
-      const fileName = `${slugPrefix}-${Date.now()}.${ext}`;
+      const fileName = `${newSlug}-${Date.now()}.${ext}`;
       const filePath = fileName;
 
       const { error: uploadError } = await supabase.storage
@@ -101,7 +102,8 @@ export async function PUT(req, context) {
     const updated = await prisma.portofolio.update({
       where: { id },
       data: {
-        name: name ?? existing.name,
+        name: newName,
+        slug: newSlug, // ✅ update slug juga
         description: description ?? existing.description,
         image: imageUrl,
       },
