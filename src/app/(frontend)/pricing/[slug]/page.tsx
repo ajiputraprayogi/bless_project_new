@@ -36,7 +36,9 @@ export default function PricingDetailPage() {
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-black text-yellow-400">
-        Loading...
+        <div className="min-h-screen flex items-center justify-center text-yellow-500">
+          <div className="loader"></div>
+        </div>
       </main>
     );
   }

@@ -16,6 +16,9 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Bless Luxury Contractor",
   description: "Architect Site",
+    icons: {
+    icon: "/images/brand/logos.png", // default favicon
+  },
 };
 
 export default function RootLayout({

@@ -5,7 +5,7 @@ import PriceCard from "../components/slices/priceCard"
 export default function PricingPage() {
     return (
         <>
-        <PriceCard/>
+            <PriceCard/>
             <PricePage/>
             <StepPage/>
             <div className="mb-10"></div>

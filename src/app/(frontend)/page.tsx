@@ -34,24 +34,32 @@ export default function LuxuryContractor() {
     },
   ];
 
-  useEffect(() => {
-    async function fetchBackground() {
-      try {
-        // contoh API dummy (ganti sesuai kebutuhanmu)
-        const res = await fetch("/dummyapi/background");
-        const data = await res.json();
+useEffect(() => {
+  async function fetchBackground() {
+    try {
+      const res = await fetch("/api/banner");
+      const data = await res.json();
 
-        // misalnya API balikin { url: "https://..." }
-        setBgImage(data.url);
-      } catch (err) {
-        console.error("Failed to fetch background:", err);
-      } finally {
-        setLoading(false);
+      // filter hanya yang active
+      const activeItems = data.filter((item: any) => item.active === true);
+
+      if (activeItems.length > 0) {
+        // ambil random 1 item
+        const randomItem = activeItems[Math.floor(Math.random() * activeItems.length)];
+        setBgImage(randomItem.img);
+
+        console.log("Random ID terpilih:", randomItem.id);
       }
+    } catch (err) {
+      console.error("Failed to fetch background:", err);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    fetchBackground();
-  }, []);
+  fetchBackground();
+}, []);
+
 
   return (
     <div className="bg-black text-white min-h-screen">
