@@ -62,7 +62,7 @@ const navItems: NavItem[] = [
     name: "Profil",
     icon: <UserCircleIcon />,
     subItems: [
-      { name: "Tentang Perusahaan", path: "/backend/profil", permission: "view-profile" },
+      { name: "Tentang Perusahaan", path: "/backend/profile", permission: "view-profile" },
       { name: "Tim", path: "/backend/tim", permission: "view-tim" }
     ],
   },
