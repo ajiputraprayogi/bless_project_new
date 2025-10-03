@@ -86,6 +86,11 @@ const navItems: NavItem[] = [
   },
   {
     icon:  <UserCircleIcon />,
+    name: "Kelebihan & Kekurangan",
+    path: "/backend/kelebihan-kekurangan",
+  },
+  {
+    icon:  <UserCircleIcon />,
     name: "Setting Web",
     path: "/backend/banner",
   },
