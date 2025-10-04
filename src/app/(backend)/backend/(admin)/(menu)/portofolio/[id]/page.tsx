@@ -23,6 +23,9 @@ function EditPortofolio() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
+  const MAX_SIZE = 500 * 1024; // ✅ 500 KB
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
   useEffect(() => {
     document.title = "Edit Portofolio | Admin Panel";
 
@@ -48,8 +51,28 @@ function EditPortofolio() {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
-    setImageFile(file);
-    if (file) setImagePreview(URL.createObjectURL(file));
+
+    if (file) {
+      // ✅ validasi type
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        alert("Format file harus JPG, PNG, atau WEBP");
+        event.target.value = "";
+        return;
+      }
+
+      // ✅ validasi size
+      if (file.size > MAX_SIZE) {
+        alert("Ukuran file maksimal 500 KB");
+        event.target.value = "";
+        return;
+      }
+
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImageFile(null);
+      setImagePreview(null);
+    }
   };
 
   async function handleSubmit(e: React.FormEvent) {
@@ -61,7 +84,7 @@ function EditPortofolio() {
       formData.append("name", name);
       formData.append("description", description);
       if (imageFile) {
-        formData.append("image", imageFile); // ⬅️ KEY SUDAH SAMA DENGAN BACKEND
+        formData.append("image", imageFile);
       }
 
       const res = await fetch(`/api/backend/portofolio/${params.id}`, {
@@ -123,8 +146,12 @@ function EditPortofolio() {
           </div>
 
           <div>
-            <Label>Gambar</Label>
-            <FileInput onChange={handleFileChange} disabled={loading} />
+            <Label>Gambar (Max 500KB, JPG/PNG/WEBP)</Label>
+            <FileInput
+              onChange={handleFileChange}
+              disabled={loading}
+              accept=".jpg,.jpeg,.png,.webp"
+            />
             {imagePreview && (
               <img
                 src={imagePreview}

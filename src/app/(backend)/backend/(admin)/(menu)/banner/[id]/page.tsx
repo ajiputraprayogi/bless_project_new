@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import withPermission from "@/components/auth/withPermission";
 import { useRouter, useParams } from "next/navigation";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
@@ -20,6 +20,8 @@ function EditBanner() {
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+
+  const previewRef = useRef<string | null>(null);
 
   useEffect(() => {
     document.title = "Edit Banner | Admin Panel";
@@ -45,8 +47,36 @@ function EditBanner() {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
-    setImageFile(file);
-    if (file) setImagePreview(URL.createObjectURL(file));
+
+    if (file) {
+      // ✅ Validasi ukuran file (maks 500KB)
+      if (file.size > 500 * 1024) {
+        alert("Ukuran file maksimal 500KB");
+        event.target.value = "";
+        return;
+      }
+
+      // ✅ Validasi tipe file (JPG, PNG, WEBP)
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        alert("Format file hanya boleh JPG, PNG, atau WEBP");
+        event.target.value = "";
+        return;
+      }
+
+      setImageFile(file);
+
+      // preview baru
+      if (previewRef.current) URL.revokeObjectURL(previewRef.current);
+      const url = URL.createObjectURL(file);
+      previewRef.current = url;
+      setImagePreview(url);
+    } else {
+      if (previewRef.current) URL.revokeObjectURL(previewRef.current);
+      previewRef.current = null;
+      setImageFile(null);
+      setImagePreview(null);
+    }
   };
 
   async function handleSubmit(e: React.FormEvent) {
@@ -71,6 +101,7 @@ function EditBanner() {
     } catch (error) {
       console.error(error);
       alert("Terjadi kesalahan saat update banner");
+    } finally {
       setLoading(false);
     }
   }
@@ -88,12 +119,12 @@ function EditBanner() {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Data Banner" />
+      <PageBreadcrumb pageTitle="Edit Banner" />
       <ComponentCard title="Form Edit Banner">
         <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
           <div>
-            <Label>Gambar</Label>
-            <FileInput onChange={handleFileChange} disabled={loading} />
+            <Label>Upload Gambar (Max 500KB, JPG/PNG/WEBP)</Label>
+            <FileInput onChange={handleFileChange} disabled={loading} accept="image/jpeg,image/png,image/webp"/>
             {imagePreview && (
               <img
                 src={imagePreview}

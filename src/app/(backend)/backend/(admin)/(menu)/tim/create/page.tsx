@@ -19,13 +19,30 @@ function CreateTim() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const MAX_FILE_SIZE = 500 * 1024; // 500 KB
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
 
     if (file) {
+      // ✅ Validasi tipe file
+      if (!allowedTypes.includes(file.type)) {
+        alert("Format file tidak didukung. Hanya JPG, PNG, atau WEBP yang diperbolehkan.");
+        event.target.value = ""; // reset input
+        return;
+      }
+
+      // ✅ Validasi ukuran file
+      if (file.size > MAX_FILE_SIZE) {
+        alert("Ukuran file maksimal 500 KB.");
+        event.target.value = ""; // reset input
+        return;
+      }
+
       setImageFile(file);
 
-      // bersihkan URL lama
+      // Bersihkan URL lama
       if (previewRef.current) URL.revokeObjectURL(previewRef.current);
 
       const url = URL.createObjectURL(file);
@@ -106,8 +123,12 @@ function CreateTim() {
           </div>
 
           <div>
-            <Label>Foto</Label>
-            <FileInput onChange={handleFileChange} className="custom-class" />
+            <Label>Upload Gambar (Max 500KB, JPG/PNG/WEBP)</Label>
+            <FileInput
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileChange}
+              className="custom-class"
+            />
             {previewUrl && (
               <img
                 src={previewUrl}
