@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { EcommerceMetrics } from "@/components/ecommerce/EcommerceMetrics";
+import { HomePage } from "@/components/ecommerce/HomePage";
 
 export const metadata = {
   title: "Dashboard Admin | My App",
@@ -17,7 +17,7 @@ export default async function AdminPage() {
   return (
     <div className="grid grid-cols-12 gap-4 md:gap-6">
       <div className="col-span-12 space-y-6 xl:col-span-12">
-        <EcommerceMetrics />
+        <HomePage />
       </div>
     </div>
   );

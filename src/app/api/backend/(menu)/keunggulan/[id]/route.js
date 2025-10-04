@@ -12,14 +12,20 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const BUCKET_NAME = "keunggulan-images"; 
+const BUCKET_NAME = "keunggulan-images";
+
+// --- Helper ---
+function extractFilePathFromUrl(url) {
+  const parts = url.split(`${BUCKET_NAME}/`);
+  return parts[1] || null;
+}
 
 // =========================================================================
-// ✅ GET untuk ambil detail keunggulan
+// ✅ GET detail keunggulan
 // =========================================================================
 export async function GET(req, context) {
   try {
-    const id = parseInt(context.params.id, 10);
+    const id = Number(context.params.id);
     if (isNaN(id)) {
       return NextResponse.json({ error: "ID tidak valid" }, { status: 400 });
     }
@@ -28,7 +34,7 @@ export async function GET(req, context) {
       where: { id },
       select: {
         id: true,
-        title: true, 
+        title: true,
         slug: true,
         image: true,
         description: true,
@@ -49,20 +55,17 @@ export async function GET(req, context) {
 }
 
 // =========================================================================
-// ✅ PUT untuk update keunggulan
+// ✅ PUT update keunggulan
 // =========================================================================
 export async function PUT(req, context) {
   try {
-    const id = parseInt(context.params.id, 10);
+    const id = Number(context.params.id);
     if (isNaN(id)) {
       return NextResponse.json({ error: "ID tidak valid" }, { status: 400 });
     }
 
     const formData = await req.formData();
-    // ✅ Ambil 'title'
     const title = formData.get("title")?.toString() || null;
-    // userSlug diabaikan karena frontend tidak mengirimkannya.
-    // const userSlug = formData.get("slug")?.toString() || null; 
     const description = formData.get("description")?.toString() || null;
     const file = formData.get("image");
 
@@ -71,87 +74,56 @@ export async function PUT(req, context) {
       return NextResponse.json({ error: "Keunggulan tidak ditemukan" }, { status: 404 });
     }
 
-    // ✅ Tentukan Title dan Slug baru
-    const newTitle = title ?? existing.title;
-    
-    // Logika penentuan base slug baru:
-    // 1. Jika title berubah, kita buat slug baru dari title baru.
-    // 2. Jika title tidak berubah, kita gunakan slug lama (existing.slug).
-    const newBaseSlug = (title && title !== existing.title) 
-      ? slugify(newTitle, { lower: true, strict: true }) 
-      : existing.slug;
-
-
-    // --- Logika Penjaminan Keunikan Slug ---
+    // --- Slug handling ---
     let finalSlug = existing.slug;
-    
-    // Hanya lakukan pengecekan jika base slug baru berbeda dari slug yang sudah ada
-    if (newBaseSlug !== existing.slug) {
-        let count = 0;
-        let tempSlug = newBaseSlug;
-        
-        while (await prisma.keunggulan.findUnique({ where: { slug: tempSlug } })) {
-            // Jika slug yang dicek adalah slug milik record ini, ini berarti tidak ada perubahan slug, 
-            // kita bisa menggunakan slug lama, dan break.
-            if (tempSlug === existing.slug) {
-                 break; 
-            }
-            
-            // Jika slug milik orang lain, tambahkan counter
-            count++;
-            tempSlug = `${newBaseSlug}-${count}`;
-            
-            if (count > 100) throw new Error("Gagal generate slug unik"); 
-        }
-        finalSlug = tempSlug; // Ambil slug unik yang ditemukan
-    } else {
-        finalSlug = existing.slug; // Slug lama jika tidak ada perubahan title atau jika title yang baru menghasilkan slug yang sama
-    }
+    if (title && title !== existing.title) {
+      const baseSlug = slugify(title, { lower: true, strict: true });
+      let tempSlug = baseSlug;
+      let counter = 1;
 
+      while (true) {
+        const duplicate = await prisma.keunggulan.findUnique({ where: { slug: tempSlug } });
+        if (!duplicate || duplicate.id === id) break;
+        tempSlug = `${baseSlug}-${counter++}`;
+      }
+
+      finalSlug = tempSlug;
+    }
 
     let imageUrl = existing.image;
 
-    // ✅ Upload file baru jika ada
-    if (file && file instanceof File && file.size > 0) {
-      // Hapus gambar lama
+    // --- File upload ---
+    if (file instanceof File && file.size > 0) {
+      // Hapus file lama
       if (existing.image) {
-        const oldFilePath = existing.image.split(BUCKET_NAME + "/")[1];
+        const oldFilePath = extractFilePathFromUrl(existing.image);
         if (oldFilePath) {
-            await supabase.storage.from(BUCKET_NAME).remove([oldFilePath]);
+          await supabase.storage.from(BUCKET_NAME).remove([oldFilePath]);
         }
       }
 
       const buffer = Buffer.from(await file.arrayBuffer());
       const ext = file.name.split(".").pop();
-
-      // ✅ Nama file menggunakan finalSlug-timestamp.ext
       const fileName = `${finalSlug}-${Date.now()}.${ext}`;
-      const filePath = fileName;
 
       const { error: uploadError } = await supabase.storage
-        .from(BUCKET_NAME) 
-        .upload(filePath, buffer, { contentType: file.type, upsert: true });
+        .from(BUCKET_NAME)
+        .upload(fileName, buffer, { contentType: file.type, upsert: true });
 
       if (uploadError) {
         console.error("Supabase upload error:", uploadError);
-        throw new Error("Gagal upload file ke Supabase");
+        return NextResponse.json({ error: "Gagal upload file ke Supabase" }, { status: 500 });
       }
 
-      const { data } = supabase.storage
-        .from(BUCKET_NAME) 
-        .getPublicUrl(filePath);
-
-      if (data?.publicUrl) {
-        imageUrl = data.publicUrl;
-      }
+      const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(fileName);
+      imageUrl = data?.publicUrl ?? existing.image;
     }
 
-    // Ganti model keunggulan
     const updated = await prisma.keunggulan.update({
       where: { id },
       data: {
-        title: newTitle, 
-        slug: finalSlug, // ✅ Update slug
+        title: title ?? existing.title,
+        slug: finalSlug,
         description: description ?? existing.description,
         image: imageUrl,
         updated_at: new Date(),
@@ -161,36 +133,35 @@ export async function PUT(req, context) {
     return NextResponse.json(updated, { status: 200 });
   } catch (error) {
     console.error("Prisma error (PUT Keunggulan):", error);
-    
-    // ✅ PERBAIKAN: Menghapus sintaks TypeScript 'as any'
-    if (error instanceof Error && error.code === 'P2002') { 
-        return NextResponse.json(
-            { error: "Slug sudah ada. Coba lagi dengan Judul/Slug yang berbeda." },
-            { status: 409 }
-        );
+    if (error.code === "P2002") {
+      return NextResponse.json(
+        { error: "Slug sudah ada. Gunakan judul lain." },
+        { status: 409 }
+      );
     }
-    
     return NextResponse.json({ error: "Gagal update keunggulan" }, { status: 500 });
   }
 }
 
 // =========================================================================
-// ✅ DELETE untuk hapus keunggulan
+// ✅ DELETE hapus keunggulan
 // =========================================================================
 export async function DELETE(req, context) {
   try {
-    const id = parseInt(context.params.id, 10);
+    const id = Number(context.params.id);
     if (isNaN(id)) {
       return NextResponse.json({ error: "ID tidak valid" }, { status: 400 });
     }
 
     const existing = await prisma.keunggulan.findUnique({ where: { id } });
-    
-    // Hapus gambar lama dari Supabase
-    if (existing?.image) {
-      const oldFilePath = existing.image.split(BUCKET_NAME + "/")[1];
+    if (!existing) {
+      return NextResponse.json({ error: "Keunggulan tidak ditemukan" }, { status: 404 });
+    }
+
+    if (existing.image) {
+      const oldFilePath = extractFilePathFromUrl(existing.image);
       if (oldFilePath) {
-        await supabase.storage.from(BUCKET_NAME).remove([oldFilePath]); 
+        await supabase.storage.from(BUCKET_NAME).remove([oldFilePath]);
       }
     }
 

@@ -18,7 +18,7 @@ export async function GET() {
         created_by: true,
         created_at: true,
       },
-      orderBy: { id: "asc" },
+      orderBy: { id: "desc" },
     });
 
     return NextResponse.json(banners);
@@ -45,20 +45,37 @@ export async function POST(request: Request) {
       );
     }
 
+    // ✅ Validasi ukuran file (maks 500KB)
+    if (imageFile.size > 500 * 1024) {
+      return NextResponse.json(
+        { error: "Ukuran file maksimal 500KB" },
+        { status: 400 }
+      );
+    }
+
+    // ✅ Validasi format file
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(imageFile.type)) {
+      return NextResponse.json(
+        { error: "Format file hanya boleh JPG, PNG, atau WEBP" },
+        { status: 400 }
+      );
+    }
+
     // Generate nama file unik
     const fileExt = imageFile.name.split(".").pop();
     const fileName = `banner-${Date.now()}.${fileExt}`;
 
     // Upload ke Supabase
-    const { data, error } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from("banner-images")
       .upload(fileName, imageFile, {
         cacheControl: "3600",
         upsert: false,
       });
 
-    if (error) {
-      console.error("Supabase upload error:", error);
+    if (uploadError) {
+      console.error("Supabase upload error:", uploadError);
       return NextResponse.json(
         { error: "Gagal upload gambar banner" },
         { status: 500 }

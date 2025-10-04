@@ -15,14 +15,31 @@ function CreatePortofolio() {
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const previewRef = useRef<string | null>(null); // ✅ simpan URL di ref agar bisa dibersihkan dengan aman
+  const previewRef = useRef<string | null>(null); 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const MAX_SIZE = 500 * 1024; // ✅ 500 KB
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
 
     if (file) {
+      // ✅ validasi type
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        alert("Format file harus JPG, PNG, atau WEBP");
+        event.target.value = ""; // reset input
+        return;
+      }
+
+      // ✅ validasi size
+      if (file.size > MAX_SIZE) {
+        alert("Ukuran file maksimal 500 KB");
+        event.target.value = ""; // reset input
+        return;
+      }
+
       setImageFile(file);
 
       // bersihkan URL lama
@@ -39,7 +56,6 @@ function CreatePortofolio() {
     }
   };
 
-  // ✅ cleanup hanya saat unmount
   useEffect(() => {
     return () => {
       if (previewRef.current) URL.revokeObjectURL(previewRef.current);
@@ -49,7 +65,11 @@ function CreatePortofolio() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // browser akan validasi otomatis karena pakai `required` di input
+    if (!name || !description || !imageFile) {
+      alert("Semua field wajib diisi");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
@@ -105,8 +125,12 @@ function CreatePortofolio() {
           </div>
 
           <div>
-            <Label>Upload Gambar</Label>
-            <FileInput onChange={handleFileChange} className="custom-class" />
+            <Label>Upload Gambar (Max 500KB, JPG/PNG/WEBP)</Label>
+            <FileInput
+              onChange={handleFileChange}
+              className="custom-class"
+              accept=".jpg,.jpeg,.png,.webp" // ✅ hint ke browser
+            />
             {previewUrl && (
               <img
                 src={previewUrl}

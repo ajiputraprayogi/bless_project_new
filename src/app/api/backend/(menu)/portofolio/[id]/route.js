@@ -44,6 +44,26 @@ export async function GET(req, context) {
   }
 }
 
+async function generateUniqueSlugForUpdate(name, id) {
+  const baseSlug = slugify(name, { lower: true, strict: true });
+  let uniqueSlug = baseSlug;
+  let count = 1;
+
+  while (true) {
+    const existing = await prisma.portofolio.findUnique({
+      where: { slug: uniqueSlug },
+    });
+
+    if (!existing || existing.id === id) {
+      break;
+    }
+
+    uniqueSlug = `${baseSlug}-${count++}`;
+  }
+
+  return uniqueSlug;
+}
+
 // ✅ Update portofolio
 export async function PUT(req, context) {
   try {
@@ -64,15 +84,36 @@ export async function PUT(req, context) {
 
     // ✅ Generate slug baru jika name berubah
     const newName = name ?? existing.name;
-    const newSlug = slugify(newName, { lower: true, strict: true });
+    const newSlug = await generateUniqueSlugForUpdate(newName, id);
 
     let imageUrl = existing.image;
 
     // ✅ Upload file baru jika ada
     if (file && file.size > 0) {
+      // 🔹 Validasi ukuran & tipe file
+      const MAX_SIZE = 500 * 1024; // 500KB
+      const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+      if (file.size > MAX_SIZE) {
+        return NextResponse.json(
+          { error: "Ukuran file maksimal 500 KB" },
+          { status: 400 }
+        );
+      }
+
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        return NextResponse.json(
+          { error: "Format file tidak valid. Hanya JPG, PNG, atau WebP" },
+          { status: 400 }
+        );
+      }
+
+      // 🔹 Hapus file lama di storage kalau ada
       if (existing.image) {
         const oldFilePath = existing.image.split("/").pop();
-        await supabase.storage.from("portofolio-images").remove([oldFilePath]);
+        if (oldFilePath) {
+          await supabase.storage.from("portofolio-images").remove([oldFilePath]);
+        }
       }
 
       const buffer = Buffer.from(await file.arrayBuffer());
@@ -87,13 +128,11 @@ export async function PUT(req, context) {
         .upload(filePath, buffer, { contentType: file.type, upsert: true });
 
       if (uploadError) {
-        throw new Error("Gagal upload file ke Supabase");
+        console.error("Supabase upload error:", uploadError);
+        return NextResponse.json({ error: "Gagal upload file ke Supabase" }, { status: 500 });
       }
 
-      const { data } = supabase.storage
-        .from("portofolio-images")
-        .getPublicUrl(filePath);
-
+      const { data } = supabase.storage.from("portofolio-images").getPublicUrl(filePath);
       if (data?.publicUrl) {
         imageUrl = data.publicUrl;
       }
@@ -127,7 +166,9 @@ export async function DELETE(req, context) {
     const existing = await prisma.portofolio.findUnique({ where: { id } });
     if (existing?.image) {
       const oldFilePath = existing.image.split("/").pop();
-      await supabase.storage.from("portofolio-images").remove([oldFilePath]);
+      if (oldFilePath) {
+        await supabase.storage.from("portofolio-images").remove([oldFilePath]);
+      }
     }
 
     await prisma.portofolio.delete({ where: { id } });

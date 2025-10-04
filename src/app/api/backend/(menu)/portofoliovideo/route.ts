@@ -12,7 +12,7 @@ export async function GET() {
         createdAt: true,
         updatedAt: true,
       },
-      orderBy: { id: "asc" },
+      orderBy: { id: "desc" },
     });
 
     return NextResponse.json(videos, { status: 200 });

@@ -7,6 +7,9 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY! // pakai service role biar bisa upload tanpa auth user
 );
 
+const MAX_FILE_SIZE = 500 * 1024; // 500 KB
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
 // ✅ GET untuk ambil semua tim
 export async function GET() {
   try {
@@ -19,7 +22,7 @@ export async function GET() {
         created_at: true,
         updated_at: true,
       },
-      orderBy: { id: "asc" },
+      orderBy: { id: "desc" },
     });
     return NextResponse.json(tim);
   } catch (error) {
@@ -47,12 +50,27 @@ export async function POST(request: Request) {
       );
     }
 
-    // Upload gambar jika ada
+    // Validasi gambar
     let imageUrl: string | null = null;
     if (imageFile) {
+      if (!ALLOWED_TYPES.includes(imageFile.type)) {
+        return NextResponse.json(
+          { error: "Format file tidak didukung. Hanya JPG, PNG, atau WEBP." },
+          { status: 400 }
+        );
+      }
+
+      if (imageFile.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: "Ukuran file maksimal 500 KB." },
+          { status: 400 }
+        );
+      }
+
+      // Upload ke Supabase
       const fileExt = imageFile.name.split(".").pop();
       const fileName = `tim-${Date.now()}.${fileExt}`;
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from("tim-images")
         .upload(fileName, imageFile, {
           cacheControl: "3600",
@@ -71,6 +89,7 @@ export async function POST(request: Request) {
       const { data: publicUrl } = supabase.storage
         .from("tim-images")
         .getPublicUrl(fileName);
+
       imageUrl = publicUrl.publicUrl;
     }
 

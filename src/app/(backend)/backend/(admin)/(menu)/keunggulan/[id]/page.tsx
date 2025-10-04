@@ -52,17 +52,34 @@ function EditKeunggulan() {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
-    setImageFile(file);
-
-    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
 
     if (file) {
+      // ✅ Validasi ukuran file (maksimal 500KB)
+      if (file.size > 500 * 1024) {
+        alert("Ukuran file maksimal 500KB");
+        event.target.value = "";
+        return;
+      }
+
+      // ✅ Validasi tipe file
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        alert("Format file hanya boleh JPG, PNG, atau WEBP");
+        event.target.value = "";
+        return;
+      }
+
+      setImageFile(file);
+
+      if (previewRef.current) URL.revokeObjectURL(previewRef.current);
       const url = URL.createObjectURL(file);
       setImagePreview(url);
       previewRef.current = url;
     } else {
-      setImagePreview(null);
+      if (previewRef.current) URL.revokeObjectURL(previewRef.current);
       previewRef.current = null;
+      setImageFile(null);
+      setImagePreview(null);
     }
   };
 
@@ -86,10 +103,7 @@ function EditKeunggulan() {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
-
-      if (imageFile) {
-        formData.append("image", imageFile);
-      }
+      if (imageFile) formData.append("image", imageFile);
 
       const res = await fetch(`/api/backend/keunggulan/${params.id}`, {
         method: "PUT",
@@ -126,7 +140,6 @@ function EditKeunggulan() {
       <PageBreadcrumb pageTitle="Data Keunggulan" />
       <ComponentCard title="Form Edit Keunggulan">
         <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
-
           <div>
             <Label>Judul Keunggulan</Label>
             <Input
@@ -145,7 +158,7 @@ function EditKeunggulan() {
             <Label>Deskripsi</Label>
             <TextArea
               value={description}
-              onChange={(val) => setDescription(val)} // ❌ langsung val dari TextArea custom
+              onChange={(val) => setDescription(val)} // ✅ konsisten
               rows={4}
               placeholder="Deskripsi keunggulan"
               className="dark:bg-gray-900 dark:text-white/90"
@@ -154,8 +167,12 @@ function EditKeunggulan() {
           </div>
 
           <div>
-            <Label>Gambar</Label>
-            <FileInput onChange={handleFileChange} disabled={loading} />
+            <Label>Gambar (Max 500KB, JPG/PNG/WEBP)</Label>
+            <FileInput
+              onChange={handleFileChange}
+              accept="image/jpeg,image/png,image/webp"
+              disabled={loading}
+            />
             {imagePreview && (
               <img
                 src={imagePreview}

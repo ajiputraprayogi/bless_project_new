@@ -23,6 +23,9 @@ function EditTim() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
+  const MAX_FILE_SIZE = 500 * 1024; // 500 KB
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
   useEffect(() => {
     document.title = "Edit Anggota Tim | Admin Panel";
 
@@ -48,8 +51,25 @@ function EditTim() {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
-    setImageFile(file);
-    if (file) setImagePreview(URL.createObjectURL(file));
+
+    if (file) {
+      // ✅ Validasi tipe file
+      if (!allowedTypes.includes(file.type)) {
+        alert("Format file tidak didukung. Hanya JPG, PNG, atau WEBP.");
+        event.target.value = "";
+        return;
+      }
+
+      // ✅ Validasi ukuran file
+      if (file.size > MAX_FILE_SIZE) {
+        alert("Ukuran file maksimal 500 KB.");
+        event.target.value = "";
+        return;
+      }
+
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
   async function handleSubmit(e: React.FormEvent) {
@@ -122,8 +142,12 @@ function EditTim() {
           </div>
 
           <div>
-            <Label>Foto</Label>
-            <FileInput onChange={handleFileChange} disabled={loading} />
+            <Label>Foto (Max 500KB, JPG/PNG/WEBP)</Label>
+            <FileInput
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileChange}
+              disabled={loading}
+            />
             {imagePreview && (
               <img
                 src={imagePreview}
