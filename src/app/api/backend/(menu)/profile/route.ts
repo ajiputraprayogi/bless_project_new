@@ -17,7 +17,7 @@ export async function GET() {
           orderBy: { id: "asc" }, // urut berdasarkan id
         },
       },
-      orderBy: { id: "asc" }, // urut berdasarkan id profile
+      orderBy: { id: "desc" }, // urut berdasarkan id profile
     });
 
     return NextResponse.json(profiles);

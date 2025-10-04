@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 export async function GET() {
   try {
     const kontak = await prisma.kontak.findMany({
-      orderBy: { order: "asc" },
+      orderBy: { order: "desc" },
     });
 
     return NextResponse.json(kontak);

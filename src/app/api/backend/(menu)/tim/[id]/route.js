@@ -11,10 +11,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+const MAX_FILE_SIZE = 500 * 1024; // 500 KB
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
 // ✅ Ambil detail tim
 export async function GET(req, context) {
   try {
-    const { params } = await context;
     const id = parseInt(context.params.id, 10);
     if (isNaN(id)) {
       return NextResponse.json({ error: "ID tidak valid" }, { status: 400 });
@@ -63,12 +65,31 @@ export async function PUT(req, context) {
 
     let imageUrl = existing.image;
 
+    // ✅ Validasi + upload gambar baru kalau ada
     if (file && file.size > 0) {
-      if (existing.image) {
-        const oldFilePath = existing.image.split("/").pop();
-        await supabase.storage.from("tim-images").remove([oldFilePath]);
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        return NextResponse.json(
+          { error: "Format file tidak didukung. Hanya JPG, PNG, atau WEBP." },
+          { status: 400 }
+        );
       }
 
+      if (file.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: "Ukuran file maksimal 500 KB." },
+          { status: 400 }
+        );
+      }
+
+      // Hapus gambar lama dari Supabase
+      if (existing.image) {
+        const oldFilePath = existing.image.split("/").pop();
+        if (oldFilePath) {
+          await supabase.storage.from("tim-images").remove([oldFilePath]);
+        }
+      }
+
+      // Upload file baru
       const buffer = Buffer.from(await file.arrayBuffer());
       const ext = file.name.split(".").pop();
       const fileName = `tim-${Date.now()}.${ext}`;
@@ -113,7 +134,9 @@ export async function DELETE(req, context) {
     const existing = await prisma.tim.findUnique({ where: { id } });
     if (existing?.image) {
       const oldFilePath = existing.image.split("/").pop();
-      await supabase.storage.from("tim-images").remove([oldFilePath]);
+      if (oldFilePath) {
+        await supabase.storage.from("tim-images").remove([oldFilePath]);
+      }
     }
 
     await prisma.tim.delete({ where: { id } });

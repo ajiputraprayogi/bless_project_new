@@ -40,7 +40,7 @@ export async function GET() {
         created_by: true,
         created_at: true,
       },
-      orderBy: { id: "asc" },
+      orderBy: { id: "desc" },
     });
     return NextResponse.json(portofolio);
   } catch (error) {
@@ -55,7 +55,6 @@ export async function GET() {
 // ✅ POST untuk buat portofolio baru + upload image ke Supabase
 export async function POST(request: Request) {
   try {
-    // Ambil form data
     const formData = await request.formData();
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
@@ -68,6 +67,27 @@ export async function POST(request: Request) {
       );
     }
 
+    // ✅ Validasi file kalau ada
+    if (imageFile) {
+      // max 500 KB
+      const MAX_SIZE = 500 * 1024; 
+      const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+      if (imageFile.size > MAX_SIZE) {
+        return NextResponse.json(
+          { error: "Ukuran file maksimal 500 KB" },
+          { status: 400 }
+        );
+      }
+
+      if (!ALLOWED_TYPES.includes(imageFile.type)) {
+        return NextResponse.json(
+          { error: "Format file tidak valid. Hanya JPG, PNG, atau WebP yang diperbolehkan" },
+          { status: 400 }
+        );
+      }
+    }
+
     // Generate slug unik
     const slug = await generateUniqueSlug(name);
 
@@ -76,12 +96,13 @@ export async function POST(request: Request) {
     if (imageFile) {
       const fileExt = imageFile.name.split(".").pop();
       const fileName = `${slug}-${Date.now()}.${fileExt}`;
+
       const { data, error } = await supabase.storage
         .from("portofolio-images")
         .upload(fileName, imageFile, {
           cacheControl: "3600",
           upsert: false,
-        }); 
+        });
 
       if (error) {
         console.error("Supabase upload error:", error);
@@ -100,7 +121,7 @@ export async function POST(request: Request) {
 
     const createdBy = 1; // TODO: ambil dari session user
 
-    // Simpan ke database via Prisma
+    // Simpan ke database
     const newPortofolio = await prisma.portofolio.create({
       data: {
         name,

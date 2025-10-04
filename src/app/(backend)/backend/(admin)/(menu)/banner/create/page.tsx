@@ -21,10 +21,25 @@ function CreateBanner() {
     const file = event.target.files?.[0] || null;
 
     if (file) {
+      // ✅ Validasi ukuran file (maks 500KB)
+      if (file.size > 500 * 1024) {
+        alert("Ukuran file maksimal 500KB");
+        event.target.value = "";
+        return;
+      }
+
+      // ✅ Validasi tipe file (JPG, PNG, WEBP)
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        alert("Format file hanya boleh JPG, PNG, atau WEBP");
+        event.target.value = "";
+        return;
+      }
+
       setImageFile(file);
 
+      // Buat preview
       if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-
       const url = URL.createObjectURL(file);
       previewRef.current = url;
       setPreviewUrl(url);
@@ -77,8 +92,8 @@ function CreateBanner() {
       <ComponentCard title="Form Tambah Banner">
         <form onSubmit={handleSubmit} className="grid gap-4">
           <div>
-            <Label>Upload Gambar</Label>
-            <FileInput onChange={handleFileChange} className="custom-class" required />
+            <Label>Upload Gambar (Max 500KB, JPG/PNG/WEBP)</Label>
+            <FileInput onChange={handleFileChange} className="custom-class" accept="image/jpeg,image/png,image/webp" required />
             {previewUrl && (
               <img
                 src={previewUrl}

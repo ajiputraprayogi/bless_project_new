@@ -24,10 +24,24 @@ function CreateKeunggulan() {
     const file = event.target.files?.[0] || null;
 
     if (file) {
+      // ✅ Validasi ukuran file (maks 500KB)
+      if (file.size > 500 * 1024) {
+        alert("Ukuran file maksimal 500KB");
+        event.target.value = "";
+        return;
+      }
+
+      // ✅ Validasi tipe file (JPG, PNG, WEBP)
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        alert("Format file hanya boleh JPG, PNG, atau WEBP");
+        event.target.value = "";
+        return;
+      }
+
       setImageFile(file);
 
       if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-
       const url = URL.createObjectURL(file);
       previewRef.current = url;
       setPreviewUrl(url);
@@ -101,15 +115,19 @@ function CreateKeunggulan() {
             <Label>Deskripsi</Label>
             <TextArea
               value={description}
-              onChange={(val) => setDescription(val)} // ❌ langsung val, bukan e.target.value
+              onChange={(val) => setDescription(val)}
               placeholder="Deskripsi keunggulan"
               rows={4}
             />
           </div>
 
           <div>
-            <Label>Upload Gambar</Label>
-            <FileInput onChange={handleFileChange} className="custom-class" />
+            <Label>Upload Gambar (Max 500KB, JPG/PNG/WEBP)</Label>
+            <FileInput
+              onChange={handleFileChange}
+              accept="image/jpeg,image/png,image/webp"
+              className="custom-class"
+            />
             {previewUrl && (
               <img
                 src={previewUrl}

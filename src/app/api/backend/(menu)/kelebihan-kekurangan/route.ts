@@ -17,7 +17,7 @@ export async function GET() {
           orderBy: { id: "asc" }, // biar detail rapi sesuai urutan input
         },
       },
-      orderBy: { id: "asc" },
+      orderBy: { id: "desc" },
     });
 
     return NextResponse.json(data, { status: 200 });

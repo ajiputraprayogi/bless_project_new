@@ -3,14 +3,17 @@ import { prisma } from "@/lib/db";
 import { createClient } from "@supabase/supabase-js";
 
 // --- Supabase Setup ---
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error("Supabase environment variables are missing");
+}
+
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // pakai service role biar bisa upload tanpa auth user
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 // --- Utility Functions ---
-
-// Digunakan untuk slugify title jika diperlukan
+// Slugify text
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -19,8 +22,7 @@ function slugify(text: string): string {
     .replace(/[^a-z0-9\-]/g, "");
 }
 
-// Fungsi ini disesuaikan untuk model keunggulan
-// Fungsi ini sekarang memeriksa keunikan slug pada model `keunggulan`
+// Generate unique slug untuk keunggulan
 async function generateUniqueSlug(baseSlug: string) {
   let uniqueSlug = baseSlug;
   let count = 1;
@@ -33,21 +35,21 @@ async function generateUniqueSlug(baseSlug: string) {
 }
 
 // =========================================================================
-// ✅ GET untuk ambil semua keunggulan
+// ✅ GET semua keunggulan
 // =========================================================================
 export async function GET() {
   try {
     const keunggulan = await prisma.keunggulan.findMany({
       select: {
         id: true,
-        title: true, // Ambil title
+        title: true,
         slug: true,
         image: true,
         description: true,
         created_by: true,
         created_at: true,
       },
-      orderBy: { id: "asc" },
+      orderBy: { id: "desc" },
     });
     return NextResponse.json(keunggulan);
   } catch (error) {
@@ -60,13 +62,11 @@ export async function GET() {
 }
 
 // =========================================================================
-// ✅ POST untuk buat keunggulan baru + upload image ke Supabase
+// ✅ POST keunggulan baru + upload image ke Supabase
 // =========================================================================
 export async function POST(request: Request) {
   try {
-    // Ambil form data
     const formData = await request.formData();
-    // Properti diubah dari 'name' menjadi 'title' dan ditambahkan 'slug'
     const title = formData.get("title") as string;
     let userSlug = formData.get("slug") as string;
     const description = formData.get("description") as string;
@@ -78,54 +78,70 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    
-    // Jika user tidak menyediakan slug, generate dari title
+
+    // Jika slug kosong → generate dari title
     if (!userSlug) {
-        userSlug = title;
+      userSlug = title;
     }
 
-    // Slugify dan pastikan unik
     const baseSlug = slugify(userSlug);
     const uniqueSlug = await generateUniqueSlug(baseSlug);
 
-    // Upload gambar jika ada
+    // --- Upload Image (Jika ada) ---
     let imageUrl: string | null = null;
-    const bucketName = "keunggulan-images"; // Ganti nama bucket Supabase
-    
+    const bucketName = "keunggulan-images";
+
     if (imageFile) {
+      // ✅ Validasi ukuran file (max 500KB)
+      if (imageFile.size > 500 * 1024) {
+        return NextResponse.json(
+          { error: "Ukuran file maksimal 500KB" },
+          { status: 400 }
+        );
+      }
+
+      // ✅ Validasi format file
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(imageFile.type)) {
+        return NextResponse.json(
+          { error: "Format file hanya boleh JPG, PNG, atau WEBP" },
+          { status: 400 }
+        );
+      }
+
       const fileExt = imageFile.name.split(".").pop();
-      // Gunakan uniqueSlug untuk penamaan file
-      const fileName = `${uniqueSlug}-${Date.now()}.${fileExt}`; 
-      
-      const { data, error } = await supabase.storage
+      const fileName = `${uniqueSlug}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
         .from(bucketName)
         .upload(fileName, imageFile, {
           cacheControl: "3600",
           upsert: false,
         });
 
-      if (error) {
-        console.error("Supabase upload error:", error);
+      if (uploadError) {
+        console.error("Supabase upload error:", uploadError);
         return NextResponse.json(
           { error: `Gagal upload gambar ke ${bucketName}` },
           { status: 500 }
         );
       }
 
-      // Ambil public URL
+      // ✅ Ambil public URL
       const { data: publicUrl } = supabase.storage
         .from(bucketName)
         .getPublicUrl(fileName);
+
       imageUrl = publicUrl.publicUrl;
     }
 
-    const createdBy = 1; // TODO: ambil dari session user
+    const createdBy = 1; // TODO: ganti dengan user login (session)
 
-    // Simpan ke database via Prisma pada model keunggulan
+    // ✅ Simpan ke DB
     const newKeunggulan = await prisma.keunggulan.create({
       data: {
-        title, // Gunakan title
-        slug: uniqueSlug, // Gunakan uniqueSlug
+        title,
+        slug: uniqueSlug,
         created_by: createdBy,
         image: imageUrl,
         description: description || null,
@@ -133,15 +149,16 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(newKeunggulan, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Prisma error (POST Keunggulan):", error);
-    // Periksa jika error karena slug tidak unik (error code TBD)
-    if (error instanceof Error && (error as any).code === 'P2002') { 
-        return NextResponse.json(
-            { error: "Slug sudah ada. Coba lagi dengan Judul/Slug yang berbeda." },
-            { status: 409 }
-        );
+
+    if (error.code === "P2002") {
+      return NextResponse.json(
+        { error: "Slug sudah ada. Coba gunakan Judul/Slug lain." },
+        { status: 409 }
+      );
     }
+
     return NextResponse.json(
       { error: "Failed to create keunggulan" },
       { status: 500 }

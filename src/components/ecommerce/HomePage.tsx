@@ -2,7 +2,7 @@
 import React from "react";
 import { useSession } from "next-auth/react";
 
-export const EcommerceMetrics = () => {
+export const HomePage = () => {
   const { data: session, status } = useSession();
 
   if (status === "loading") {

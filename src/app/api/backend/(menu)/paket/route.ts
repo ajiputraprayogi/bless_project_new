@@ -13,7 +13,7 @@ export async function GET() {
           select: { id: true, fitur: true },
         },
       },
-      orderBy: { id: "asc" },
+      orderBy: { id: "desc" },
     });
 
     return NextResponse.json(pakets);
