@@ -57,7 +57,14 @@ const navItems: NavItem[] = [
       { name: "Tahap Layanan", path: "/backend/steppayment", permission: "view-steppayment" }
     ],
   },
-  { icon: <BoxCubeIcon />, name: "Portofolio", path: "/backend/portofolio", permission: "view-portofolio" },
+  {
+    name: "Portofolio",
+    icon: <BoxCubeIcon />,
+    subItems: [
+      { name: "Portofolio", path: "/backend/portofolio", permission: "view-portofolio" },
+      { name: "Portofolio Video", path: "/backend/portofoliovideo", permission: "view-portofolio-video" }
+    ],
+  },
   {
     name: "Profil",
     icon: <UserCircleIcon />,
