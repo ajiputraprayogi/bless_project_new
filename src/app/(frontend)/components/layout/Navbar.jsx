@@ -10,7 +10,15 @@ export default function Navbar({
   brand = "Monarch",
   links = [
     { label: "Beranda", href: "/" },
-    { label: "Harga & Layanan", href: "/pricing" },
+    // { label: "Harga & Layanan", href: "/pricing" },
+        {
+      label: "Harga & Layanan",
+      dropdown: [
+        { label: "Harga", href: "/pricing" },
+        { label: "Interior", href: "/interior" },
+        // { label: "Penghargaan", href: "/awards" },
+      ],
+    },
     { label: "Portfolio", href: "/portfolio" },
     {
       label: "Profil",

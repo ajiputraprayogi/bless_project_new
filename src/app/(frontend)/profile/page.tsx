@@ -20,18 +20,23 @@ export default function ProfilePage() {
   return (
     <div className="bg-black text-white min-h-screen py-16 px-3 md:px-12 lg:px-0 space-y-20">
 
-      {/* Sejarah Perusahaan */}
+      {/* Profil Perusahaan */}
       <section
         className="max-w-4xl mx-auto text-center space-y-6 mb-10"
         data-aos="fade-up"
       >
         <h2 className="text-4xl md:text-5xl font-bold text-left md:text-center text-yellow-400 px-5 md:px-0">
-          Sejarah Perusahaan
+          Profil Perusahaan
         </h2>
         <p className="text-gray-300 leading-relaxed text-left md:text-center px-5 md:px-0">
           Bless Kontraktor hadir sebagai jawaban atas kebutuhan masyarakat akan
           layanan kontraktor dan desain bangunan yang tidak hanya fungsional,
-          tetapi juga menghadirkan nilai estetika dan kemewahan. ...
+          tetapi juga menghadirkan nilai estetika dan kemewahan. <br /> <br />
+          bless luxury kontraktor merupakan perusahaan konsultan jasa kontraktor pembangunan, dan interior yang juga melayani jasa arsitek yang menyediakan jasa desain. Kami hadir di tengah-tengah Anda untuk membantu mendesain dan  berkomitmen membantu mewujudkan hunian sesuai yang diinginkan dengan dukungan tim solid dan berpengalaman.
+          <br /><br />
+          bless luxury kontraktor sudah berpengalaman dalam mendesain rumah, villa, residential / perumahan, dan bangunan komersial lainnya seperti ruko, kampus, caffe, apartemen, spa, kantor, kos, guest house, kompleks villa, resort hingga hotel sehingga kami dapat mendesain bangunan impian Anda sesuai standar keamanan, kualitas terbaik, dan budget yang sesuai
+          <br /><br />
+          bless luxury kontraktor akan selalu mengedepankan pelayanan yang terbaik demi membuat seluruh klien merasa puas. Wujudkan hunian yang indah dan nyaman serta mewah bersama Bless Luxury Kontraktor sekarang juga
         </p>
       </section>
 
