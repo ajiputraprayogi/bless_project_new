@@ -1,104 +1,95 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
-import Link from "next/link";
+
+const interiorImages = [
+  { 
+    src: "/images/interior/fur1.jpg", 
+    title: "Ruang Tamu Elegan",
+    subtitle: "Sentuhan klasik dalam nuansa modern",
+  },
+  { 
+    src: "/images/interior/fur2.jpg", 
+    title: "Sofa Modern",
+    subtitle: "Rapi, hangat, dan berkarakter",
+  },
+  { 
+    src: "/images/interior/fur3.jpg", 
+    title: "Sofa Tidur Hangat",
+    subtitle: "Desain nyaman untuk istirahat berkualitas",
+  },
+  { 
+    src: "/images/interior/fur4.jpg",  
+    title: "Ruang Kerja Mewah",
+    subtitle: "Kombinasi produktivitas & estetika",
+  },
+  { 
+    src: "/images/interior/fur1.jpg", 
+    title: "Kamar Minimalis",
+    subtitle: "Simpel, bersih, elegan",
+  },
+  { 
+    src: "/images/interior/fur2.jpg", 
+    title: "Furnitur Klasik Modern",
+    subtitle: "Perpaduan material premium dan timeless",
+  },
+];
 
 export default function InteriorPage() {
-    const [bgImage, setBgImage] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
+  return (
+    <main className="min-h-screen bg-[#0E0D0C] text-[#F8F6F0] px-6 md:px-10 lg:px-20 py-20">
+      {/* Header Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true }}
+        className="max-w-5xl mx-auto text-center mb-16"
+      >
+        <p className="text-sm tracking-[3px] text-yellow-100 uppercase">
+          Sentuhan Kemewahan Modern
+        </p>
+        <h1 className="text-3xl md:text-5xl font-semibold mb-4 text-yellow-500">
+          Interior & Furniture
+        </h1>
+        <p className="text-base md:text-lg text-[#B8B3A5]">
+          Eksplor inspirasi desain ruangan dan furnitur dengan gaya modern berbalut nuansa hitam emas.
+        </p>
+      </motion.section>
 
-    // Fetch data banner dari API
-    useEffect(() => {
-        async function fetchBackground() {
-            try {
-                const res = await fetch("/api/banner");
-                const data = await res.json();
+      {/* Gallery Section */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        {interiorImages.map((item, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: index * 0.1 }}
+            viewport={{ once: true }}
+            className="group cursor-pointer rounded-2xl overflow-hidden bg-[#181715] border border-[#2E2B25] hover:border-[#E7C27D]/70 transition-all duration-500"
+          >
+            <div className="relative h-[260px] w-full">
+              <Image
+                src={item.src}
+                alt={item.title}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F0E0E]/70 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            </div>
 
-                // filter hanya item aktif
-                const activeItems = data.filter((item: any) => item.active === true);
-
-                if (activeItems.length > 0) {
-                    // ambil random 1 item aktif
-                    const randomItem =
-                        activeItems[Math.floor(Math.random() * activeItems.length)];
-                    setBgImage(randomItem.img);
-
-                    console.log("🎯 Random banner terpilih:", randomItem.id);
-                }
-            } catch (err) {
-                console.error("Failed to fetch background:", err);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchBackground();
-    }, []);
-
-    return (
-        <section
-            className="
-        relative min-h-screen flex items-center justify-center 
-        bg-cover bg-center bg-no-repeat transition-all duration-700
-      "
-            style={{
-                backgroundImage: loading
-                    ? "url('/images/interior-bg.jpg')" // fallback
-                    : `url(${bgImage})`,
-            }}
-        >
-            {/* Overlay gelap agar teks lebih kontras */}
-            <div className="absolute inset-0 bg-black/60" />
-
-            {/* Konten utama */}
-            <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="relative z-10 text-center px-6 max-w-2xl text-yellow-100"
-            >
-                {/* Judul */}
-                <motion.h1
-                    className="text-4xl md:text-6xl font-bold mb-4 text-yellow-400 drop-shadow-lg"
-                    initial={{ y: -20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2, duration: 0.6 }}
-                >
-                    Interior Modern & Elegan
-                </motion.h1>
-
-                {/* Deskripsi */}
-                <motion.p
-                    className="text-sm md:text-base leading-relaxed text-yellow-200 mb-8"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4, duration: 0.8 }}
-                >
-                    Kami menghadirkan desain interior yang menggabungkan keindahan,
-                    kenyamanan, dan fungsionalitas. Dari ruang tamu hingga kantor, setiap
-                    detail kami rancang untuk menciptakan suasana yang mewah dan hangat.
-                </motion.p>
-
-                {/* Tombol Hubungi */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.6, duration: 0.8 }}
-                >
-                    <Link
-                        href="https://wa.me/6285176965609?text=Halo%20Bless%2C%20Saya%20berminat%20konsultasi%20terkait%20desain%20interior."
-                        target="_blank"
-                        className="
-    inline-block bg-yellow-500 text-black font-semibold px-6 py-3 
-    rounded-full shadow-lg hover:bg-yellow-400 transition-all
-  "
-                    >
-                        Hubungi Admin
-                    </Link>
-
-                </motion.div>
-            </motion.div>
-        </section>
-    );
+            <div className="p-5 text-left">
+              <h3 className="text-lg font-semibold text-[#E7C27D]">
+                {item.title}
+              </h3>
+              <p className="text-sm text-[#B8B3A5] mt-1">
+                {item.subtitle}
+              </p>
+            </div>
+          </motion.div>
+        ))}
+      </section>
+    </main>
+  );
 }
