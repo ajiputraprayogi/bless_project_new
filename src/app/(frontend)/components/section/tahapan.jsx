@@ -67,8 +67,18 @@ const steps = [
   },
   {
     id: 8,
-    title: "Finalisasi & Serah Dokumen Desain",
+    title: "Pembayaran, MOU & Pelaksanaan Proyek",
     side: "end",
+    description: [
+      "Owner melakukan pembayaran sesuai kesepakatan dan menandatangani MOU (Memorandum of Understanding).",
+      "Pelaksanaan proyek dimulai sesuai jadwal.",
+      "Serah terima kunci setelah proyek selesai.",
+    ],
+  },
+    {
+    id: 9,
+    title: "Finalisasi & Serah Dokumen Desain",
+    side: "start",
     description: [
       "Penyerahan paket lengkap: gambar kerja, 3D visual, dan RAB.",
       "Klien siap masuk ke tahap pembangunan.",

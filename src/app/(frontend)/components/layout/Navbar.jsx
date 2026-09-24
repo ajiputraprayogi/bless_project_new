@@ -10,8 +10,16 @@ export default function Navbar({
   brand = "Monarch",
   links = [
     { label: "Beranda", href: "/" },
-    { label: "Harga & Layanan", href: "/pricing" },
-    { label: "Portfolio", href: "/portfolio" },
+    // { label: "Harga & Layanan", href: "/pricing" },
+    { label: "Layanan", href: "/service" },
+    {
+      label: "Portfolio",
+      dropdown: [
+        { label: "Desain Arsitektur", href: "/portfolio" },
+        { label: "Interior & Furniture", href: "/interior" },
+        // { label: "Penghargaan", href: "/awards" },
+      ],
+    },
     {
       label: "Profil",
       dropdown: [
@@ -20,7 +28,7 @@ export default function Navbar({
         // { label: "Penghargaan", href: "/awards" },
       ],
     },
-    { label: "Informasi", href: "/information" },
+    { label: "Testimoni", href: "/testimonials" },
     { label: "Kontak", href: "/contact" },
   ],
 }) {
@@ -40,13 +48,13 @@ export default function Navbar({
         <div className="flex items-center gap-3">
           <span className="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden">
             <Link href={"/"}>
-            <Image
-              src="/images/brand/logos.png"
-              alt="Brand Logo"
-              width={24}
-              height={24}
-              className="object-contain"
-            />
+              <Image
+                src="/images/brand/logos.png"
+                alt="Brand Logo"
+                width={24}
+                height={24}
+                className="object-contain"
+              />
             </Link>
           </span>
           {/* <span className="font-semibold text-white">{brand}</span> */}
